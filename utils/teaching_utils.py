@@ -40,3 +40,6 @@ RHYTHM_STYLE_LIST = ["sparse","pulsing","steady","syncopated","driving","minimal
 STRUCTURE_LIST = ["loopable","slow build then climax","constant evolving texture","intro then drop then resolve","rise and fall"]
 PRODUCTION_STYLE_LIST = ["cinematic","orchestral","ambient","lofi","electronic","modern","vintage","wide stereo","reverb heavy","clean studio"]
 DYNAMICS_PROFILE_LIST = ["gradual crescendo","constant intensity","sudden impact near end","soft throughout","build and release"]
+
+TEMPO_RANGE = (50, 180)
+DURATION_RANGE = (20, 40)
