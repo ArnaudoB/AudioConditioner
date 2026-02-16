@@ -4,8 +4,8 @@ import torch.nn.functional as F
 import numpy as np
 from typing import List, Union
 import random
-from utils.music_descriptor import MusicDescriptor
-from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, DURATION_RANGE, KEY_MODE_LIST
+from music_descriptor import MusicDescriptor
+from teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, DURATION_RANGE, KEY_MODE_LIST
 
 class m_model(nn.Module):
     
@@ -36,10 +36,10 @@ class m_model(nn.Module):
                  energy_regressor: nn.Module,
                  valence_regressor: nn.Module,
                  tempo_regressor: nn.Module,
-                 key_classifier: nn.Module,
+                 key_mode_classifier: nn.Module,
                  harmonic_tension_regressor: nn.Module,
                  instrumentation_classifier: nn.Module,
-                 rhythm_classifier: nn.Module,
+                 rhythm_style_classifier: nn.Module,
                  structure_classifier: nn.Module,
                  texture_density_regressor: nn.Module,
                  production_style_classifier: nn.Module,
@@ -53,10 +53,10 @@ class m_model(nn.Module):
         self.energy_regressor = energy_regressor
         self.valence_regressor = valence_regressor
         self.tempo_regressor = tempo_regressor
-        self.key_classifier = key_classifier
+        self.key_mode_classifier = key_mode_classifier
         self.harmonic_tension_regressor = harmonic_tension_regressor
         self.instrumentation_classifier = instrumentation_classifier
-        self.rhythm_classifier = rhythm_classifier
+        self.rhythm_style_classifier = rhythm_style_classifier
         self.structure_classifier = structure_classifier
         self.texture_density_regressor = texture_density_regressor
         self.production_style_classifier = production_style_classifier
@@ -65,7 +65,7 @@ class m_model(nn.Module):
         self.top_p = top_p
 
         self.attributes_that_are_lists = ["mood", "instrumentation", "production_style"]
-        self.classification_attributes = ["mood", "key", "instrumentation", "rhythm", "structure", "production_style", "dynamics_profile"]
+        self.classification_attributes = ["mood", "key_mode", "instrumentation", "rhythm_style", "structure", "production_style", "dynamics_profile"]
         self.regression_attributes = ["energy", "valence", "tempo", "harmonic_tension", "texture_density", "duration"]
 
     def forward(self, x):
@@ -74,10 +74,10 @@ class m_model(nn.Module):
         energy = self.energy_regressor(features)
         valence = self.valence_regressor(features)
         tempo = self.tempo_regressor(features)
-        key = self.key_classifier(features)
+        key_mode = self.key_mode_classifier(features)
         harmonic_tension = self.harmonic_tension_regressor(features)
         instrumentation = self.instrumentation_classifier(features)
-        rhythm = self.rhythm_classifier(features)
+        rhythm_style = self.rhythm_style_classifier(features)
         structure = self.structure_classifier(features)
         texture_density = self.texture_density_regressor(features)
         production_style = self.production_style_classifier(features)
@@ -89,10 +89,10 @@ class m_model(nn.Module):
             "energy": energy,
             "valence": valence,
             "tempo": tempo,
-            "key": key,
+            "key_mode": key_mode,
             "harmonic_tension": harmonic_tension,
             "instrumentation": instrumentation,
-            "rhythm": rhythm,
+            "rhythm_style": rhythm_style,
             "structure": structure,
             "texture_density": texture_density,
             "production_style": production_style,
@@ -142,10 +142,10 @@ class m_model(nn.Module):
             energy=output["energy"],
             valence=output["valence"],
             tempo=output["tempo"],
-            key_mode=output["key"],
+            key_mode=output["key_mode"],
             harmonic_tension=output["harmonic_tension"],
             instrumentation=output["instrumentation"],
-            rhythm_style=output["rhythm"],
+            rhythm_style=output["rhythm_style"],
             structure=output["structure"],
             texture_density=output["texture_density"],
             production_style=output["production_style"],
@@ -162,10 +162,10 @@ class one_deep_m_model(m_model):
         energy_regressor = nn.Linear(backbone_dim, 1)
         valence_regressor = nn.Linear(backbone_dim, 1)
         tempo_regressor = nn.Linear(backbone_dim, 1)
-        key_classifier = nn.Linear(backbone_dim, len(KEY_MODE_LIST))
+        key_mode_classifier = nn.Linear(backbone_dim, len(KEY_MODE_LIST))
         harmonic_tension_regressor = nn.Linear(backbone_dim, 1)
         instrumentation_classifier = nn.Linear(backbone_dim, len(INSTRUMENTATION_LIST))
-        rhythm_classifier = nn.Linear(backbone_dim, len(RHYTHM_STYLE_LIST))
+        rhythm_style_classifier = nn.Linear(backbone_dim, len(RHYTHM_STYLE_LIST))
         structure_classifier = nn.Linear(backbone_dim, len(STRUCTURE_LIST))
         texture_density_regressor = nn.Linear(backbone_dim, 1)
         production_style_classifier = nn.Linear(backbone_dim, len(PRODUCTION_STYLE_LIST))
@@ -178,10 +178,10 @@ class one_deep_m_model(m_model):
             energy_regressor=energy_regressor,
             valence_regressor=valence_regressor,
             tempo_regressor=tempo_regressor,
-            key_classifier=key_classifier,
+            key_mode_classifier=key_mode_classifier,
             harmonic_tension_regressor=harmonic_tension_regressor,
             instrumentation_classifier=instrumentation_classifier,
-            rhythm_classifier=rhythm_classifier,
+            rhythm_style_classifier=rhythm_style_classifier,
             structure_classifier=structure_classifier,
             texture_density_regressor=texture_density_regressor,
             production_style_classifier=production_style_classifier,
@@ -189,4 +189,14 @@ class one_deep_m_model(m_model):
             duration_regressor=duration_regressor,
              **args
         )
+
+
+def test():
+    model = one_deep_m_model(clap_dim=512, backbone_dim=256)
+    x = torch.randn(1, 512)  # Simulated CLAP features
+    music_descriptor = model.generate_music_descriptor(x)
+    print(music_descriptor.prompt())
+
+if __name__ == "__main__":    
+    test()
         
