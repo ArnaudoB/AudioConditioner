@@ -5,7 +5,7 @@ import numpy as np
 from typing import List, Union
 import random
 from utils.music_descriptor import MusicDescriptor
-from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, DURATION_RANGE
+from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, DURATION_RANGE, KEY_MODE_LIST
 
 class m_model(nn.Module):
     
@@ -39,7 +39,7 @@ class m_model(nn.Module):
                  key_classifier: nn.Module,
                  harmonic_tension_regressor: nn.Module,
                  instrumentation_classifier: nn.Module,
-                 rythm_classifier: nn.Module,
+                 rhythm_classifier: nn.Module,
                  structure_classifier: nn.Module,
                  texture_density_regressor: nn.Module,
                  production_style_classifier: nn.Module,
@@ -56,7 +56,7 @@ class m_model(nn.Module):
         self.key_classifier = key_classifier
         self.harmonic_tension_regressor = harmonic_tension_regressor
         self.instrumentation_classifier = instrumentation_classifier
-        self.rythm_classifier = rythm_classifier
+        self.rhythm_classifier = rhythm_classifier
         self.structure_classifier = structure_classifier
         self.texture_density_regressor = texture_density_regressor
         self.production_style_classifier = production_style_classifier
@@ -65,7 +65,7 @@ class m_model(nn.Module):
         self.top_p = top_p
 
         self.attributes_that_are_lists = ["mood", "instrumentation", "production_style"]
-        self.classification_attributes = ["mood", "key", "instrumentation", "rythm", "structure", "production_style", "dynamics_profile"]
+        self.classification_attributes = ["mood", "key", "instrumentation", "rhythm", "structure", "production_style", "dynamics_profile"]
         self.regression_attributes = ["energy", "valence", "tempo", "harmonic_tension", "texture_density", "duration"]
 
     def forward(self, x):
@@ -77,7 +77,7 @@ class m_model(nn.Module):
         key = self.key_classifier(features)
         harmonic_tension = self.harmonic_tension_regressor(features)
         instrumentation = self.instrumentation_classifier(features)
-        rythm = self.rythm_classifier(features)
+        rhythm = self.rhythm_classifier(features)
         structure = self.structure_classifier(features)
         texture_density = self.texture_density_regressor(features)
         production_style = self.production_style_classifier(features)
@@ -92,7 +92,7 @@ class m_model(nn.Module):
             "key": key,
             "harmonic_tension": harmonic_tension,
             "instrumentation": instrumentation,
-            "rythm": rythm,
+            "rhythm": rhythm,
             "structure": structure,
             "texture_density": texture_density,
             "production_style": production_style,
@@ -145,7 +145,7 @@ class m_model(nn.Module):
             key_mode=output["key"],
             harmonic_tension=output["harmonic_tension"],
             instrumentation=output["instrumentation"],
-            rhythm_style=output["rythm"],
+            rhythm_style=output["rhythm"],
             structure=output["structure"],
             texture_density=output["texture_density"],
             production_style=output["production_style"],
@@ -155,8 +155,38 @@ class m_model(nn.Module):
         return music_descriptor
 
 
+class one_deep_m_model(m_model):
+    def __init__(self, clap_dim, backbone_dim: int, **args):
+        backbone = nn.Linear(clap_dim, backbone_dim)
+        mood_classifier = nn.Linear(backbone_dim, len(MOOD_LIST))
+        energy_regressor = nn.Linear(backbone_dim, 1)
+        valence_regressor = nn.Linear(backbone_dim, 1)
+        tempo_regressor = nn.Linear(backbone_dim, 1)
+        key_classifier = nn.Linear(backbone_dim, len(KEY_MODE_LIST))
+        harmonic_tension_regressor = nn.Linear(backbone_dim, 1)
+        instrumentation_classifier = nn.Linear(backbone_dim, len(INSTRUMENTATION_LIST))
+        rhythm_classifier = nn.Linear(backbone_dim, len(RHYTHM_STYLE_LIST))
+        structure_classifier = nn.Linear(backbone_dim, len(STRUCTURE_LIST))
+        texture_density_regressor = nn.Linear(backbone_dim, 1)
+        production_style_classifier = nn.Linear(backbone_dim, len(PRODUCTION_STYLE_LIST))
+        dynamics_profile_classifier = nn.Linear(backbone_dim, len(DYNAMICS_PROFILE_LIST))
+        duration_regressor = nn.Linear(backbone_dim, 1)
 
-    
-
-
+        super(one_deep_m_model, self).__init__(
+            backbone=backbone,
+            mood_classifier=mood_classifier,
+            energy_regressor=energy_regressor,
+            valence_regressor=valence_regressor,
+            tempo_regressor=tempo_regressor,
+            key_classifier=key_classifier,
+            harmonic_tension_regressor=harmonic_tension_regressor,
+            instrumentation_classifier=instrumentation_classifier,
+            rhythm_classifier=rhythm_classifier,
+            structure_classifier=structure_classifier,
+            texture_density_regressor=texture_density_regressor,
+            production_style_classifier=production_style_classifier,
+            dynamics_profile_classifier=dynamics_profile_classifier,
+            duration_regressor=duration_regressor,
+             **args
+        )
         
