@@ -33,3 +33,10 @@ SCENE: {scene_text}
 """
 
 MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
+
+MOOD_LIST = ["dark","epic","ominous","tragic","tense","mysterious","melancholic","nostalgic","peaceful","warm","gentle","uplifting","triumphant","joyful","hopeful","anxious","aggressive","dreamy","majestic","suspenseful"]
+INSTRUMENTATION_LIST = ["low strings","strings","brass","woodwinds","choir","war drums","taiko","timpani","cinematic percussion","piano","soft piano","acoustic guitar","electric guitar","bass","synth bass","pads","ambient textures","lofi drums","trap drums","shakers","bells","marimba","harp","flute","organ"]
+RHYTHM_STYLE_LIST = ["sparse","pulsing","steady","syncopated","driving","minimal","floating"]
+STRUCTURE_LIST = ["loopable","slow build then climax","constant evolving texture","intro then drop then resolve","rise and fall"]
+PRODUCTION_STYLE_LIST = ["cinematic","orchestral","ambient","lofi","electronic","modern","vintage","wide stereo","reverb heavy","clean studio"]
+DYNAMICS_PROFILE_LIST = ["gradual crescendo","constant intensity","sudden impact near end","soft throughout","build and release"]
