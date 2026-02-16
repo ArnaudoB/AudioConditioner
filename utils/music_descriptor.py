@@ -33,7 +33,11 @@ class MusicDescriptor:
                 texture_density: Union[float, None],
                 production_style: Union[List[str], None],
                 dynamics_profile: Union[str, None],
-                duration: Union[int, None]):
+                duration: Union[int, None],
+                excluded_elements: Union[List[str], None] = None,
+                unwanted_moods: Union[List[str], None] = None,
+                quality_preset: bool = True, # Pour inclure par défaut des tags de qualité
+                **kwargs):
 
         self.mood = mood
         self.energy = energy
@@ -48,7 +52,29 @@ class MusicDescriptor:
         self.production_style = production_style
         self.dynamics_profile = dynamics_profile
         self.duration = duration
+        self.excluded_elements = excluded_elements
+        self.unwanted_moods = unwanted_moods
+        self.quality_preset = quality_preset
 
+    def negative_prompt(self) -> str:
+        """
+        Génère la chaîne de caractères pour le negative prompt.
+        """
+        neg_elements = []
+
+        # 1. Éléments techniques (Presets de qualité)
+        if self.quality_preset:
+            neg_elements.extend(["low quality", "mono", "distorted", "clipping", "noise", "hiss"])
+
+        # 2. Moods indésirables
+        if self.unwanted_moods:
+            neg_elements.extend(self.unwanted_moods)
+
+        # 3. Éléments musicaux à exclure
+        if self.excluded_elements:
+            neg_elements.extend(self.excluded_elements)
+
+        return ", ".join(neg_elements).strip()
 
     def energy_descriptor(self):
         """
