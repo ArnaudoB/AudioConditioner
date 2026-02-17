@@ -7,6 +7,12 @@ import numpy as np
 
 
 class StableAudioModel(torch.nn.Module):
+
+    """
+    StableAudioModel is a wrapper around the StableAudioPipeline from Hugging Face's diffusers library.
+    It allows for generating audio from text prompts, with support for both single prompts and batch processing. The model uses 8-bit quantization for the text encoder and transformer to reduce memory usage while maintaining performance. The forward method can handle both single prompts and lists of prompts, making it flexible for different use cases. The generated audio is returned as a tensor.
+    """
+
     def __init__(self, model_id="stabilityai/stable-audio-open-1.0"):
         super().__init__()
 
