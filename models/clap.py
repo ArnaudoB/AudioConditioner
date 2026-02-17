@@ -3,6 +3,10 @@ from transformers import ClapModel, ClapProcessor
 
 
 class CLAPModel(torch.nn.Module):
+    """
+    CLAPModel is a wrapper around the CLAPModel from Hugging Face's transformers library. It provides methods to extract text and audio embeddings using the CLAP model. The model can process both text and audio inputs, returning their respective embeddings. The forward method allows for simultaneous extraction of text and audio embeddings.
+
+    """
     def __init__(self, model_id="laion/clap-htsat-unfused"):
         super().__init__()
         self.model = ClapModel.from_pretrained(model_id).to("cuda" if torch.cuda.is_available() else "cpu")
