@@ -1,4 +1,5 @@
 from typing import List, Union
+import json
 
 
 class MusicDescriptor:
@@ -298,3 +299,24 @@ class MusicDescriptor:
             sentences.append(sentence)
         
         return " ".join(sentences).strip()
+    
+
+def read_music_descriptor_from_json(json_str: str) -> tuple[str, MusicDescriptor]:
+    data = json.loads(json_str)
+    descriptor = data.get("descriptor", {})
+    scene = data.get("scene", "unknown_scene")
+    descriptor["tempo"] = descriptor["tempo_bpm"] 
+    descriptor["duration"] = descriptor["duration_s"]  
+    descriptor.pop("tempo_bpm", None)
+    descriptor.pop("duration_s", None)
+    return scene, MusicDescriptor(**descriptor)
+
+if __name__ == "__main__":
+    # Exemple d'utilisation
+    dataset_path = "data/teacher_dataset.jsonl"
+    with open(dataset_path, "r") as f:
+        first_line = f.readline()
+    scene, descriptor = read_music_descriptor_from_json(first_line)
+    print(f"Scene: {scene}")
+    print(f"Generated Prompt: {descriptor.prompt()}")
+    print(f"Generated Negative Prompt: {descriptor.negative_prompt()}")
