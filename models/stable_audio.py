@@ -86,16 +86,17 @@ if __name__ == "__main__":
     conditioner = StableAudioModel()
     
     # Exemple 1: Prompt unique (comportement original)
-    prompt = "The sound of a hammer hitting a wooden surface."
+    #scene = A driven monk inside a candlelit cathedral watches a kingdom fall
+    prompt = "Cinematic music. Tragic, ominous mood, negative/sad music, energetic, with a layered texture. Featuring strings, timpani, cinematic percussion. Tempo around 90 BPM, with a steady rhythm. In a minor key, with a very dissonant tension. The structure is slow build then climax, with a gradual crescendo. Duration around 30 seconds."
     negative_prompt = "Low quality."
     audio = conditioner(prompt, 
                        negative_prompt=negative_prompt, 
                        audio_end_in_s=30.0,
                        num_waveforms_per_prompt=1,
                        seed=42,
-                       num_inference_steps=100)
+                       num_inference_steps=50)
     output = audio[0].T.float().cpu().numpy()
-    sf.write("sounds/hammer.wav", output, conditioner.pipeline.vae.sampling_rate)
+    sf.write("sounds/test_50.wav", output, conditioner.pipeline.vae.sampling_rate)
     
     # Exemple 2: Plusieurs prompts en parallèle (batch processing)
     prompts = [
