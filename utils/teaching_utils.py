@@ -1,6 +1,6 @@
 TEACHER_PROMPT = """You are a JSON generator. Return ONLY valid JSON (no markdown, no comments, no extra text).
 
-Task: Convert the given SCENE into a MusicDescriptor JSON that will be used to prompt a text-to-music model for a 20-40s instrumental clip.
+Task: Convert the given SCENE into a JSON that will be used to prompt a text-to-music model for a 20-40s instrumental clip.
 
 Rules:
 - Output must conform exactly to this schema (all keys required):
@@ -20,7 +20,7 @@ Rules:
   "duration_s": <int 20..40>
 }}
 
-- Choose mood ONLY from: ["dark","epic","ominous","tragic","tense","mysterious","melancholic","nostalgic","peaceful","warm","gentle","uplifting","triumphant","joyful","hopeful","anxious","aggressive","dreamy","majestic","suspenseful"].
+- Choose moods ONLY from (you can pick several moods): ["dark","epic","ominous","tragic","tense","mysterious","melancholic","nostalgic","peaceful","warm","gentle","uplifting","triumphant","joyful","hopeful","anxious","aggressive","dreamy","majestic","suspenseful"].
 - Choose instrumentation ONLY from: ["low strings","strings","brass","woodwinds","choir","war drums","taiko","timpani","cinematic percussion","piano","soft piano","acoustic guitar","electric guitar","bass","synth bass","pads","ambient textures","lofi drums","trap drums","shakers","bells","marimba","harp","flute","organ"].
 - Choose rhythm_style ONLY from: ["sparse","pulsing","steady","syncopated","driving","minimal","floating"].
 - Choose structure ONLY from: ["loopable","slow build then climax","constant evolving texture","intro then drop then resolve","rise and fall"].

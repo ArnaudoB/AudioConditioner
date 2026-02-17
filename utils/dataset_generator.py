@@ -5,18 +5,26 @@ from tqdm import tqdm
 
 from teaching_utils import TEACHER_PROMPT, MODEL_ID
 
-# TODO: Fix the functions (fails because has to do with the braces in the teaching prompt)
-
 
 def extract_json(text: str) -> str:
     """
-    TODO
+    Extracts the first valid JSON object from the model's answer.
     """
     start = text.find("{")
-    end = text.rfind("}")
-    if start == -1 or end == -1 or end <= start:
+    if start == -1:
         raise ValueError("No JSON object found")
-    return text[start:end+1]
+
+    depth = 0
+    for i in range(start, len(text)):
+        ch = text[i]
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start:i+1]
+
+    raise ValueError("Unclosed JSON object")
 
 
 # Load teacher model
@@ -31,6 +39,9 @@ model.eval()
 
 @torch.no_grad()
 def teacher(scene_text: str, max_new_tokens: int = 320, temperature: float = 0.2) -> str:
+    """
+    Prompts the teacher model with the given scene text and returns the answer.
+    """
     prompt = TEACHER_PROMPT.format(scene_text=scene_text.strip())
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     out = model.generate(
@@ -42,11 +53,16 @@ def teacher(scene_text: str, max_new_tokens: int = 320, temperature: float = 0.2
         repetition_penalty=1.05,
         eos_token_id=tokenizer.eos_token_id,
     )
-    gen = tokenizer.decode(out[0], skip_special_tokens=True)
-    return gen
+
+    gen_tokens = out[0, inputs["input_ids"].shape[1]:]   # only new tokens   # only new tokens
+    response = tokenizer.decode(gen_tokens, skip_special_tokens=True).strip()
+    return response
 
 
-def label_scene(scene_text: str, retries: int = 3):
+def label_scene(scene_text: str, retries: int = 10):
+    """
+    Function to label a scene using the teacher model. It will retry to parse the JSON up to `retries` times if the model's output is not valid JSON.
+    """
     last_err = None
     for _ in range(retries):
         gen = teacher(scene_text)
@@ -60,13 +76,14 @@ def label_scene(scene_text: str, retries: int = 3):
 
 
 
-def main(path_to_scenes="./data/test.txt", out_path="./data/teacher_dataset.jsonl"):
+def main(path_to_scenes="./data/generated_scenes.txt", out_path="./data/teacher_dataset.jsonl"):
 
     with open(path_to_scenes, "r") as f:
         scenes = [line.strip() for line in f.readlines() if line.strip()]
 
 
     with open(out_path, "wb") as f:
+        
         for s in tqdm(scenes):
             desc = label_scene(s)
             record = {"scene": s, "descriptor": desc}
