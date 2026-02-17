@@ -2,8 +2,9 @@ import torch
 from transformers import ClapModel, ClapProcessor
 
 
-class CLAPModel:
+class CLAPModel(torch.nn.Module):
     def __init__(self, model_id="laion/clap-htsat-unfused"):
+        super().__init__()
         self.model = ClapModel.from_pretrained(model_id).to("cuda" if torch.cuda.is_available() else "cpu")
         self.processor = ClapProcessor.from_pretrained(model_id)
 
@@ -18,6 +19,17 @@ class CLAPModel:
         with torch.no_grad():
             audio_embeddings = self.model.get_audio_features(**inputs).pooler_output
         return audio_embeddings
+    
+    def forward(self, texts, audio_waveforms, sampling_rate=48000):
+        if texts is not None:
+            text_embeddings = self.get_text_embeddings(texts)
+        else:
+            text_embeddings = None
+        if audio_waveforms is not None:
+            audio_embeddings = self.get_audio_embeddings(audio_waveforms, sampling_rate)
+        else:
+            audio_embeddings = None
+        return text_embeddings, audio_embeddings
     
     
 
