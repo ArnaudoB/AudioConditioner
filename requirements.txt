@@ -1,0 +1,19 @@
+# Core ML and PyTorch
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+numpy>=1.21.0
+
+# Transformers and NLP
+transformers>=4.30.0
+tokenizers>=0.13.0
+
+# JSON and data processing
+orjson>=3.8.0
+tqdm>=4.65.0
+
+# Additional utilities
+Pillow>=9.0.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
