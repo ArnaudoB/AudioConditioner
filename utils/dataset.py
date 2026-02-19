@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-from music_descriptor import MusicDescriptor
-from music_descriptor import read_music_descriptor_from_json
+from utils.music_descriptor import MusicDescriptor
+from utils.music_descriptor import read_music_descriptor_from_json
 import json
 import tqdm
 
@@ -42,7 +42,7 @@ class EmbeddingDataset(Dataset):
     def __getitem__(self, idx):
         scene, descriptor = self.music_dataset[idx]
         embedding, _ = self.embedding_model(texts=[scene], audio_waveforms=None)
-        return embedding.squeeze(0), descriptor
+        return embedding.squeeze(0), descriptor.to_differentiable_tensor()
     
 
         
