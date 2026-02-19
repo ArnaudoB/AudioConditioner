@@ -1,6 +1,16 @@
+import sys
+import os
+# Add parent directory to Python path to import utils
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from typing import List, Union
 import json
+import torch
+from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, DURATION_RANGE, KEY_MODE_LIST
 
+ATTRIBUTES_THAT_ARE_LISTS = ["mood", "instrumentation", "production_style"]
+CLASSIFICATION_ATTRIBUTES = ["mood", "key_mode", "instrumentation", "rhythm_style", "structure", "production_style", "dynamics_profile"]
+REGRESSION_ATTRIBUTES = ["energy", "valence", "tempo", "harmonic_tension", "texture_density", "duration"]
 
 class MusicDescriptor:
     """
@@ -21,6 +31,7 @@ class MusicDescriptor:
     - dynamics_profile: A string describing the dynamics profile of the music (e.g., "gradual build", "sudden drops", "consistent energy"...).
     - duration: An integer representing the desired duration of the music in seconds.
     """
+
     def __init__(self,
                 mood: Union[List[str], None],
                 energy: Union[float, None],
@@ -76,6 +87,49 @@ class MusicDescriptor:
             neg_elements.extend(self.excluded_elements)
 
         return ", ".join(neg_elements).strip()
+    
+    def inv_to_range_int(self, value, min_val, max_val):
+        """
+       Converts an integer in the specified range to a normalized value between 0 and 1.
+        """
+        if value is None:
+            return None
+        return (value - min_val) / (max_val - min_val) if max_val > min_val else 0.0
+
+    def to_differentiable_tensor(self):
+        output = {}
+        for attribute in self.__dict__:
+            value = getattr(self, attribute)
+            if isinstance(value, list):
+                # For list attributes, we can create a multi-hot encoded tensor based on predefined lists of possible values
+                possible_values = globals().get(f"{attribute.upper()}_LIST", [])
+                tensor = torch.zeros(len(possible_values))
+                for item in value:
+                    if item in possible_values:
+                        index = possible_values.index(item)
+                        tensor[index] = 1.0
+                output[attribute] = tensor
+            elif isinstance(value, str):
+                # For string attributes, we can create a one-hot encoded tensor based on predefined lists of possible values
+                possible_values = globals().get(f"{attribute.upper()}_LIST", [])
+                tensor = torch.zeros(len(possible_values))
+                if value in possible_values:
+                    index = possible_values.index(value)
+                    tensor[index] = 1.0
+                output[attribute] = tensor
+            elif isinstance(value, (float, int)):
+                # For scalar attributes, we can directly convert them to tensors
+                output[attribute] = torch.tensor(value, dtype=torch.float32)
+                if attribute == "tempo":
+                    output[attribute] = self.inv_to_range_int(output[attribute], *TEMPO_RANGE)
+                elif attribute == "duration":
+                    output[attribute] = self.inv_to_range_int(output[attribute], *DURATION_RANGE)
+
+            else:
+                output[attribute] = None  # Non-differentiable attributes can be set to None or handled separately
+
+
+        return output
 
     def energy_descriptor(self):
         """
@@ -320,3 +374,4 @@ if __name__ == "__main__":
     print(f"Scene: {scene}")
     print(f"Generated Prompt: {descriptor.prompt()}")
     print(f"Generated Negative Prompt: {descriptor.negative_prompt()}")
+    print(f"Differentiable Tensor: {descriptor.to_differentiable_tensor()}")
