@@ -12,7 +12,7 @@ import random
 from utils.music_descriptor import ATTRIBUTES_THAT_ARE_LISTS, CLASSIFICATION_ATTRIBUTES, REGRESSION_ATTRIBUTES, MusicDescriptor
 from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, DURATION_RANGE, KEY_MODE_LIST
 
-class m_model(nn.Module):
+class M_model(nn.Module):
     
     """
     A multi-task model that takes a scene description as input and outputs a MusicDescriptor JSON object. The model consists of a shared backbone for feature extraction and multiple heads for predicting different attributes of the music descriptor. The generate_music_descriptor method combines the outputs of the heads into a structured MusicDescriptor object, applying any necessary post-processing (e.g., mapping class indices to labels, applying top-p sampling for multi-label outputs).
@@ -52,7 +52,7 @@ class m_model(nn.Module):
                  duration_regressor: nn.Module,
                  top_p: float = 0.9,
                  **args):
-        super(m_model, self).__init__()
+        super(M_model, self).__init__()
         self.backbone = backbone
         self.mood_classifier = mood_classifier
         self.energy_regressor = energy_regressor
@@ -165,7 +165,7 @@ class m_model(nn.Module):
         return music_descriptor
 
 
-class one_deep_m_model(m_model):
+class OneDeepM_model(M_model):
     def __init__(self, clap_dim, backbone_dim: int, **args):
         backbone = nn.Linear(clap_dim, backbone_dim)
         mood_classifier = nn.Linear(backbone_dim, len(MOOD_LIST))
@@ -182,7 +182,7 @@ class one_deep_m_model(m_model):
         dynamics_profile_classifier = nn.Linear(backbone_dim, len(DYNAMICS_PROFILE_LIST))
         duration_regressor = nn.Linear(backbone_dim, 1)
 
-        super(one_deep_m_model, self).__init__(
+        super(OneDeepM_model, self).__init__(
             backbone=backbone,
             mood_classifier=mood_classifier,
             energy_regressor=energy_regressor,
@@ -202,7 +202,7 @@ class one_deep_m_model(m_model):
 
 
 def test():
-    model = one_deep_m_model(clap_dim=512, backbone_dim=256)
+    model = OneDeepM_model(clap_dim=512, backbone_dim=256)
     x = torch.randn(1, 512)  # Simulated CLAP features
     output = model.forward(x)
     music_descriptor = model.generate_music_descriptor(x, top_p=0.05)
