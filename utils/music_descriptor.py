@@ -96,7 +96,7 @@ class MusicDescriptor:
             return None
         return (value - min_val) / (max_val - min_val) if max_val > min_val else 0.0
 
-    def to_differentiable_tensor(self):
+    def to_differentiable_tensor(self, device=None):
         output = {}
         for attribute in self.__dict__:
             value = getattr(self, attribute)
@@ -108,6 +108,8 @@ class MusicDescriptor:
                     if item in possible_values:
                         index = possible_values.index(item)
                         tensor[index] = 1.0
+                if device is not None:
+                    tensor = tensor.to(device)
                 output[attribute] = tensor
             elif isinstance(value, str) and attribute in CLASSIFICATION_ATTRIBUTES:
                 # For string attributes, we can create a one-hot encoded tensor based on predefined lists of possible values
@@ -116,10 +118,14 @@ class MusicDescriptor:
                 if value in possible_values:
                     index = possible_values.index(value)
                     tensor[index] = 1.0
+                if device is not None:
+                    tensor = tensor.to(device)
                 output[attribute] = tensor
             elif isinstance(value, (float, int)) and attribute in REGRESSION_ATTRIBUTES:
                 # For scalar attributes, we can directly convert them to tensors
-                output[attribute] = torch.tensor(value, dtype=torch.float32)
+                output[attribute] = torch.tensor(value, dtype=torch.float32).unsqueeze(0)  # Add batch dimension
+                if device is not None:
+                    output[attribute] = output[attribute].to(device)
                 if attribute == "tempo":
                     output[attribute] = self.inv_to_range_int(output[attribute], *TEMPO_RANGE)
                 elif attribute == "duration":

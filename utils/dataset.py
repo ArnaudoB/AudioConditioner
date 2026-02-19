@@ -8,7 +8,7 @@ import tqdm
 
 class MusicDataset(Dataset):
     """Dataset class for loading music descriptors from a JSONL file. Each line in the file should contain a JSON object with a 'scene' and a 'descriptor'."""
-    def load_data_from_json(self, path_to_json: str):
+    def load_data_from_json(self, path_to_json: str,):
         data_list = []
         scenes = []
         with open(path_to_json, 'r') as f:
@@ -32,17 +32,17 @@ class MusicDataset(Dataset):
 
 class EmbeddingDataset(Dataset):
 
-    def __init__(self, music_dataset: MusicDataset, embedding_model):
+    def __init__(self, music_dataset: MusicDataset, embedding_model, device=None):
         self.music_dataset = music_dataset
         self.embedding_model = embedding_model
-
+        self.device = device
     def __len__(self):
         return len(self.music_dataset)
 
     def __getitem__(self, idx):
         scene, descriptor = self.music_dataset[idx]
         embedding, _ = self.embedding_model(texts=[scene], audio_waveforms=None)
-        return embedding.squeeze(0), descriptor.to_differentiable_tensor()
+        return embedding.squeeze(0), descriptor.to_differentiable_tensor(device=self.device)
     
 
         

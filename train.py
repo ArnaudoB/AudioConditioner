@@ -24,13 +24,13 @@ def train(model, device, train_loader, val_loader, num_epochs, optimizer, criter
     for epoch in range(num_epochs):
         running_loss = 0.0
         for inputs, labels in tqdm(train_loader, desc=f"Epoch {epoch+1}/{num_epochs}"):
-            inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
             outputs = model(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
+            wandb.log({"batch_loss": loss.item()})
         
         avg_loss = running_loss / len(train_loader)
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}")
@@ -38,13 +38,12 @@ def train(model, device, train_loader, val_loader, num_epochs, optimizer, criter
         val_loss_total = 0.0
         with torch.no_grad():
             for inputs, labels in tqdm(val_loader, desc=f"Validation Epoch {epoch+1}/{num_epochs}"):
-                inputs, labels = inputs.to(device), labels.to(device)
                 outputs = model(inputs)
                 val_loss = criterion(outputs, labels)
                 val_loss_total += val_loss.item()
         
         avg_val_loss = val_loss_total / len(val_loader)
-        wandb.log({"loss": avg_loss, "val_loss": avg_val_loss, "epoch": epoch+1})
+        wandb.log({"avg_loss": avg_loss, "val_loss": avg_val_loss, "epoch": epoch+1})
 
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}")
         print(f"Validation Loss: {avg_val_loss:.4f}")
@@ -61,7 +60,7 @@ def main(lr=0.001, num_epochs=20, batch_size=32):
     # Load dataset
     dataset = MusicDataset('data/teacher_dataset.jsonl')
     embedding_model = CLAPModel()
-    embedding_dataset = EmbeddingDataset(dataset, embedding_model)
+    embedding_dataset = EmbeddingDataset(dataset, embedding_model, device=device)
 
     # Split dataset into training and validation sets
     train_size = int(0.8 * len(embedding_dataset))
@@ -69,7 +68,6 @@ def main(lr=0.001, num_epochs=20, batch_size=32):
     train_dataset, val_dataset = random_split(embedding_dataset, [train_size, val_size])
 
     print(f"Total samples: {len(embedding_dataset)}, Training samples: {len(train_dataset)}, Validation samples: {len(val_dataset)}")
-    print(train_dataset[0])  # Print a sample from the training dataset to verify it works correctly
     # Create data loaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
