@@ -7,7 +7,7 @@ import json
 import tqdm
 
 class MusicDataset(Dataset):
-
+    """Dataset class for loading music descriptors from a JSONL file. Each line in the file should contain a JSON object with a 'scene' and a 'descriptor'."""
     def load_data_from_json(self, path_to_json: str):
         data_list = []
         scenes = []
