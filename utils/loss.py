@@ -10,7 +10,8 @@ from utils.music_descriptor import MusicDescriptor
 from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, KEY_MODE_LIST, TEMPO_RANGE, DURATION_RANGE
 
 class MSEMusicDescriptorLoss(nn.Module):
-    
+    """Simple MSE loss for music descriptors. This can be extended to include weighting for different attributes or to handle missing attributes more gracefully.
+    """
     def __init__(self):
         super(MSEMusicDescriptorLoss, self).__init__()
 
