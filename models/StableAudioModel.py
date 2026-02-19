@@ -3,7 +3,6 @@ import soundfile as sf
 from diffusers import BitsAndBytesConfig as DiffusersBitsAndBytesConfig, StableAudioDiTModel, StableAudioPipeline
 from transformers import BitsAndBytesConfig as BitsAndBytesConfig, T5EncoderModel
 from typing import List, Union
-import numpy as np
 
 
 class StableAudioModel(torch.nn.Module):
@@ -13,7 +12,7 @@ class StableAudioModel(torch.nn.Module):
     It allows for generating audio from text prompts, with support for both single prompts and batch processing. The model uses 8-bit quantization for the text encoder and transformer to reduce memory usage while maintaining performance. The forward method can handle both single prompts and lists of prompts, making it flexible for different use cases. The generated audio is returned as a tensor.
     """
 
-    def __init__(self, model_id="stabilityai/stable-audio-open-1.0"):
+    def __init__(self, model_id="stabilityai/stable-audio-open-1.0", num_inference_steps=50, audio_end_in_s=10.0, num_waveforms_per_prompt=2, seed=42):
         super().__init__()
 
         quant_config = BitsAndBytesConfig(load_in_8bit=True)
@@ -43,21 +42,27 @@ class StableAudioModel(torch.nn.Module):
             cache_dir="/Data/audiocond-models"
         )
 
-    def generate_audio(self, prompt, negative_prompt=None, num_inference_steps=200, audio_end_in_s=10.0, num_waveforms_per_prompt=3, seed=42):
+        self.num_inference_steps = num_inference_steps
+        self.audio_end_in_s = audio_end_in_s
+        self.num_waveforms_per_prompt = num_waveforms_per_prompt
+        self.seed = seed
+
+
+    def generate_audio(self, prompt, negative_prompt=None):
         """Generate audio from a single prompt"""
-        generator = torch.Generator(device=self.pipeline.device).manual_seed(seed)
+        generator = torch.Generator(device=self.pipeline.device).manual_seed(self.seed)
         audio = self.pipeline(
             prompt,
             negative_prompt=negative_prompt,
-            num_inference_steps=num_inference_steps,
-            audio_end_in_s=audio_end_in_s,
-            num_waveforms_per_prompt=num_waveforms_per_prompt,
+            num_inference_steps=self.num_inference_steps,
+            audio_end_in_s=self.audio_end_in_s,
+            num_waveforms_per_prompt=self.num_waveforms_per_prompt,
             generator=generator,
         ).audios
         return audio
     
-    def generate_audio_batch(self, prompts: List[str], negative_prompts: Union[List[str], None] = None, 
-                           num_inference_steps=200, audio_end_in_s=10.0, num_waveforms_per_prompt=3, seed=42):
+    
+    def generate_audio_batch(self, prompts: List[str], negative_prompts: Union[List[str], None] = None):
         """Generate audio from multiple prompts in batch"""
         if negative_prompts is None:
             negative_prompts = [None] * len(prompts)
@@ -67,26 +72,25 @@ class StableAudioModel(torch.nn.Module):
             else:
                 raise ValueError("Le nombre de negative_prompts doit être égal au nombre de prompts ou 1")
         
-        generator = torch.Generator(device=self.pipeline.device).manual_seed(seed)
+        generator = torch.Generator(device=self.pipeline.device).manual_seed(self.seed)
         audios = self.pipeline(
             prompts,
             negative_prompt=negative_prompts,
-            num_inference_steps=num_inference_steps,
-            audio_end_in_s=audio_end_in_s,
-            num_waveforms_per_prompt=num_waveforms_per_prompt,
+            num_inference_steps=self.num_inference_steps,
+            audio_end_in_s=self.audio_end_in_s,
+            num_waveforms_per_prompt=self.num_waveforms_per_prompt,
             generator=generator,
         ).audios
         return audios
 
     
-    def forward(self, prompt, negative_prompt=None, num_inference_steps=200, audio_end_in_s=10.0, num_waveforms_per_prompt=3, seed=42):
+    def forward(self, prompt, negative_prompt=None):
         """Forward method that can handle single prompt or list of prompts"""
         if isinstance(prompt, list):
-            return self.generate_audio_batch(prompt, negative_prompt, num_inference_steps, 
-                                                audio_end_in_s, num_waveforms_per_prompt, seed)
+            return self.generate_audio_batch(prompt, negative_prompt)
         else:
-            return self.generate_audio(prompt, negative_prompt, num_inference_steps, 
-                                     audio_end_in_s, num_waveforms_per_prompt, seed)
+            return self.generate_audio(prompt, negative_prompt)
+        
     
 if __name__ == "__main__":
     conditioner = StableAudioModel()

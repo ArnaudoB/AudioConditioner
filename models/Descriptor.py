@@ -106,12 +106,10 @@ class Descriptor(nn.Module):
         return int(value * (max_val - min_val) + min_val)
     
     
-    def generate_music_descriptor(self, x, top_p: Union[float, None] = None):
+    def generate_music_descriptor(self, output, top_p: Union[float, None] = None):
 
         if top_p is None:
             top_p = self.top_p
-
-        output = self.forward(x)
 
         # Post-process outputs to convert them into the expected formats (e.g., mapping class indices to labels, applying activation functions)
         # The classification heads will output logits, so we need to apply softmax to get probabilities and then map to labels. 
