@@ -214,7 +214,10 @@ def test():
         print(f"{attribute} (post-processed): {getattr(music_descriptor, attribute)}")
         print(f"{attribute} (differentiable tensor): {diff_tensor[attribute]}")
 
-    
+    import utils.loss
+    criterion = utils.loss.MSEMusicDescriptorLoss()
+    print("\nLoss:", criterion(output, diff_tensor))
+    print("0 Loss:", criterion(diff_tensor, diff_tensor))  # Loss between the same descriptor should be 0
 
 if __name__ == "__main__":
 
