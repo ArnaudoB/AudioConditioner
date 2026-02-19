@@ -1,10 +1,15 @@
+import sys
+import os
+# Add parent directory to Python path to import utils
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from typing import List, Union
 import random
-from utils.music_descriptor import MusicDescriptor
+from utils.music_descriptor import ATTRIBUTES_THAT_ARE_LISTS, CLASSIFICATION_ATTRIBUTES, REGRESSION_ATTRIBUTES, MusicDescriptor
 from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, DURATION_RANGE, KEY_MODE_LIST
 
 class m_model(nn.Module):
@@ -64,9 +69,9 @@ class m_model(nn.Module):
         self.duration_regressor = duration_regressor
         self.top_p = top_p
 
-        self.attributes_that_are_lists = ["mood", "instrumentation", "production_style"]
-        self.classification_attributes = ["mood", "key_mode", "instrumentation", "rhythm_style", "structure", "production_style", "dynamics_profile"]
-        self.regression_attributes = ["energy", "valence", "tempo", "harmonic_tension", "texture_density", "duration"]
+        self.attributes_that_are_lists = ATTRIBUTES_THAT_ARE_LISTS
+        self.classification_attributes = CLASSIFICATION_ATTRIBUTES
+        self.regression_attributes = REGRESSION_ATTRIBUTES
 
     def forward(self, x):
         features = self.backbone(x)
@@ -99,15 +104,6 @@ class m_model(nn.Module):
             "dynamics_profile": dynamics_profile,
             "duration": duration
         }
-        return output
-    
-    def to_range_int(self, value, min_val, max_val):
-        return int(value * (max_val - min_val) + min_val)
-    
-    def generate_music_descriptor(self, x, top_p: Union[float, None] = None):
-        if top_p is None:
-            top_p = self.top_p
-        output = self.forward(x)
 
         # Post-process outputs to convert them into the expected formats (e.g., mapping class indices to labels, applying activation functions)
         # The classification heads will output logits, so we need to apply softmax to get probabilities and then map to labels. The regression heads will output raw values that may need to be scaled or clamped to the expected ranges.
@@ -116,11 +112,25 @@ class m_model(nn.Module):
         for attribute in self.regression_attributes:
             output[attribute] = torch.sigmoid(output[attribute])  # Apply sigmoid to regression outputs to bound them between 0 and 1
       
+
+        return output
+    
+    def to_range_int(self, value, min_val, max_val):
+        """Converts a normalized value between 0 and 1 to an integer in the specified range.
+        """
+        return int(value * (max_val - min_val) + min_val)
+    
+    def generate_music_descriptor(self, x, top_p: Union[float, None] = None):
+        if top_p is None:
+            top_p = self.top_p
+        output = self.forward(x)
+
+
         for attribute in self.attributes_that_are_lists:
-          probs = output[attribute]
-          indices = torch.where(probs > top_p)[1]
-          labels = [globals()[f"{attribute.upper()}_LIST"][i] for i in indices]
-          output[attribute] = labels
+            probs = output[attribute]
+            indices = torch.where(probs > top_p)[1]
+            labels = [globals()[f"{attribute.upper()}_LIST"][i] for i in indices]
+            output[attribute] = labels
 
         for attribute in self.classification_attributes:
             if attribute not in self.attributes_that_are_lists:
@@ -194,9 +204,20 @@ class one_deep_m_model(m_model):
 def test():
     model = one_deep_m_model(clap_dim=512, backbone_dim=256)
     x = torch.randn(1, 512)  # Simulated CLAP features
-    music_descriptor = model.generate_music_descriptor(x)
-    print(music_descriptor.prompt())
+    output = model.forward(x)
+    music_descriptor = model.generate_music_descriptor(x, top_p=0.05)
+    diff_tensor = music_descriptor.to_differentiable_tensor()
 
-if __name__ == "__main__":    
+    for attribute, value in output.items():
+        print("\n")
+        print(f"{attribute}: {value}")
+        print(f"{attribute} (post-processed): {getattr(music_descriptor, attribute)}")
+        print(f"{attribute} (differentiable tensor): {diff_tensor[attribute]}")
+
+    
+
+if __name__ == "__main__":
+
+        
     test()
         
