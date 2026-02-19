@@ -100,7 +100,7 @@ class MusicDescriptor:
         output = {}
         for attribute in self.__dict__:
             value = getattr(self, attribute)
-            if isinstance(value, list):
+            if isinstance(value, list) and attribute in ATTRIBUTES_THAT_ARE_LISTS:
                 # For list attributes, we can create a multi-hot encoded tensor based on predefined lists of possible values
                 possible_values = globals().get(f"{attribute.upper()}_LIST", [])
                 tensor = torch.zeros(len(possible_values))
@@ -109,7 +109,7 @@ class MusicDescriptor:
                         index = possible_values.index(item)
                         tensor[index] = 1.0
                 output[attribute] = tensor
-            elif isinstance(value, str):
+            elif isinstance(value, str) and attribute in CLASSIFICATION_ATTRIBUTES:
                 # For string attributes, we can create a one-hot encoded tensor based on predefined lists of possible values
                 possible_values = globals().get(f"{attribute.upper()}_LIST", [])
                 tensor = torch.zeros(len(possible_values))
@@ -117,7 +117,7 @@ class MusicDescriptor:
                     index = possible_values.index(value)
                     tensor[index] = 1.0
                 output[attribute] = tensor
-            elif isinstance(value, (float, int)):
+            elif isinstance(value, (float, int)) and attribute in REGRESSION_ATTRIBUTES:
                 # For scalar attributes, we can directly convert them to tensors
                 output[attribute] = torch.tensor(value, dtype=torch.float32)
                 if attribute == "tempo":
@@ -125,8 +125,6 @@ class MusicDescriptor:
                 elif attribute == "duration":
                     output[attribute] = self.inv_to_range_int(output[attribute], *DURATION_RANGE)
 
-            else:
-                output[attribute] = None  # Non-differentiable attributes can be set to None or handled separately
 
 
         return output
