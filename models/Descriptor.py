@@ -1,8 +1,12 @@
+import sys
+import os
+# Add parent directory to Python path to import utils
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Union
-from utils.music_descriptor import MusicDescriptor
+from utils.music_descriptor import ATTRIBUTES_THAT_ARE_LISTS, CLASSIFICATION_ATTRIBUTES, REGRESSION_ATTRIBUTES, MusicDescriptor
 from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, DURATION_RANGE, KEY_MODE_LIST
 
 class Descriptor(nn.Module):
@@ -63,10 +67,9 @@ class Descriptor(nn.Module):
         self.duration_regressor = duration_regressor
         self.top_p = top_p
 
-        self.attributes_that_are_lists = ["mood", "instrumentation", "production_style"]
-        self.classification_attributes = ["mood", "key_mode", "instrumentation", "rhythm_style", "structure", "production_style", "dynamics_profile"]
-        self.regression_attributes = ["energy", "valence", "tempo", "harmonic_tension", "texture_density", "duration"]
-
+        self.attributes_that_are_lists = ATTRIBUTES_THAT_ARE_LISTS
+        self.classification_attributes = CLASSIFICATION_ATTRIBUTES
+        self.regression_attributes = REGRESSION_ATTRIBUTES
 
     def forward(self, x):
         features = self.backbone(x)
@@ -99,10 +102,21 @@ class Descriptor(nn.Module):
             "dynamics_profile": dynamics_profile,
             "duration": duration
         }
+
+        # Post-process outputs to convert them into the expected formats (e.g., mapping class indices to labels, applying activation functions)
+        # The classification heads will output logits, so we need to apply softmax to get probabilities and then map to labels. The regression heads will output raw values that may need to be scaled or clamped to the expected ranges.
+        for attribute in self.classification_attributes:
+            output[attribute] = F.softmax(output[attribute], dim=-1)
+        for attribute in self.regression_attributes:
+            output[attribute] = torch.sigmoid(output[attribute])  # Apply sigmoid to regression outputs to bound them between 0 and 1
+      
+
         return output
     
     
     def to_range_int(self, value, min_val, max_val):
+        """Converts a normalized value between 0 and 1 to an integer in the specified range.
+        """
         return int(value * (max_val - min_val) + min_val)
     
     
@@ -113,20 +127,16 @@ class Descriptor(nn.Module):
 
         output = self.forward(x)
 
-        # Post-process outputs to convert them into the expected formats (e.g., mapping class indices to labels, applying activation functions)
-        # The classification heads will output logits, so we need to apply softmax to get probabilities and then map to labels. 
-        # The regression heads will output raw values that may need to be scaled or clamped to the expected ranges.
 
-        for attribute in self.classification_attributes:
-            output[attribute] = F.softmax(output[attribute], dim=-1)
-        for attribute in self.regression_attributes:
-            output[attribute] = torch.sigmoid(output[attribute])  # Apply sigmoid to regression outputs to bound them between 0 and 1
-      
         for attribute in self.attributes_that_are_lists:
-          probs = output[attribute]
-          indices = torch.where(probs > top_p)[1]
-          labels = [globals()[f"{attribute.upper()}_LIST"][i] for i in indices]
-          output[attribute] = labels
+            probs = output[attribute]
+            if torch.sum(probs > top_p) == 0:  # If no classes are above the top_p threshold, take the class with the highest probability
+                indices = [torch.argmax(probs).item()]
+                print(f"Warning: No classes for attribute '{attribute}' above top_p threshold. Defaulting to class with highest probability: {globals()[f'{attribute.upper()}_LIST'][indices[0]]}")
+            else:
+                indices = torch.where(probs > top_p)[0] # NE MARCHE PAS S'IL N'Y A PAS DE CLASSES AU-DESSUS DU SEUIL top_p, IL FAUT GÉRER CE CAS
+            labels = [globals()[f"{attribute.upper()}_LIST"][i] for i in indices]
+            output[attribute] = labels
 
         for attribute in self.classification_attributes:
             if attribute not in self.attributes_that_are_lists:
@@ -198,12 +208,96 @@ class OneDeepDescriptor(Descriptor):
              **args
         )
 
+class TwoDeepDescriptor(Descriptor):
+    def __init__(self, clap_dim, backbone_dim: int, **args):
+        # Define a deeper backbone with multiple layers
+        backbone = nn.Sequential(
+            nn.Linear(clap_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, backbone_dim)
+        )
+        mood_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(MOOD_LIST))
+        )
+        energy_regressor = nn.Linear(backbone_dim, 1)
+        valence_regressor = nn.Linear(backbone_dim, 1)
+        tempo_regressor = nn.Linear(backbone_dim, 1)
+        key_mode_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(KEY_MODE_LIST))
+        )
+        harmonic_tension_regressor = nn.Linear(backbone_dim, 1)
+        instrumentation_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(INSTRUMENTATION_LIST))
+        )
+        rhythm_style_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(RHYTHM_STYLE_LIST))
+        )
+        structure_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(STRUCTURE_LIST))
+        )
+        texture_density_regressor = nn.Linear(backbone_dim, 1)
+        production_style_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(PRODUCTION_STYLE_LIST))
+        )
+        dynamics_profile_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(DYNAMICS_PROFILE_LIST))
+        )
+        duration_regressor = nn.Linear(backbone_dim, 1)
+
+        super(TwoDeepDescriptor, self).__init__(
+            backbone=backbone,
+            mood_classifier=mood_classifier,
+            energy_regressor=energy_regressor,
+            valence_regressor=valence_regressor,
+            tempo_regressor=tempo_regressor,
+            key_mode_classifier=key_mode_classifier,
+            harmonic_tension_regressor=harmonic_tension_regressor,
+            instrumentation_classifier=instrumentation_classifier,
+            rhythm_style_classifier=rhythm_style_classifier,
+            structure_classifier=structure_classifier,
+            texture_density_regressor=texture_density_regressor,
+            production_style_classifier=production_style_classifier,
+            dynamics_profile_classifier=dynamics_profile_classifier,
+            duration_regressor=duration_regressor,
+             **args
+        )
+
 
 def test():
     model = OneDeepDescriptor(clap_dim=512, backbone_dim=256)
     x = torch.randn(1, 512)  # Simulated CLAP features
-    music_descriptor = model.generate_music_descriptor(x)
-    print(music_descriptor.prompt())
+    output = model.forward(x)
+    music_descriptor = model.generate_music_descriptor(x, top_p=0.05)
+    diff_tensor = music_descriptor.to_differentiable_tensor()
 
-if __name__ == "__main__":    
+    for attribute, value in output.items():
+        print("\n")
+        print(f"{attribute}: {value}")
+        print(f"{attribute} (post-processed): {getattr(music_descriptor, attribute)}")
+        print(f"{attribute} (differentiable tensor): {diff_tensor[attribute]}")
+
+    import utils.loss
+    criterion = utils.loss.MSEMusicDescriptorLoss()
+    print("\nLoss:", criterion(output, diff_tensor))
+    print("0 Loss:", criterion(diff_tensor, diff_tensor))  # Loss between the same descriptor should be 0
+
+if __name__ == "__main__":
+
+        
     test()
