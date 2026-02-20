@@ -128,8 +128,11 @@ class M_model(nn.Module):
 
         for attribute in self.attributes_that_are_lists:
             probs = output[attribute]
-    
-            indices = torch.where(probs > top_p)[1] # NE MARCHE PAS S'IL N'Y A PAS DE CLASSES AU-DESSUS DU SEUIL top_p, IL FAUT GÉRER CE CAS
+            if torch.sum(probs > top_p) == 0:  # If no classes are above the top_p threshold, take the class with the highest probability
+                indices = [torch.argmax(probs).item()]
+                print(f"Warning: No classes for attribute '{attribute}' above top_p threshold. Defaulting to class with highest probability: {globals()[f'{attribute.upper()}_LIST'][indices[0]]}")
+            else:
+                indices = torch.where(probs > top_p)[0] # NE MARCHE PAS S'IL N'Y A PAS DE CLASSES AU-DESSUS DU SEUIL top_p, IL FAUT GÉRER CE CAS
             labels = [globals()[f"{attribute.upper()}_LIST"][i] for i in indices]
             output[attribute] = labels
 
@@ -211,18 +214,46 @@ class TwoDeepM_model(M_model):
             nn.ReLU(),
             nn.Linear(backbone_dim, backbone_dim)
         )
-        mood_classifier = nn.Linear(backbone_dim, len(MOOD_LIST))
+        mood_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(MOOD_LIST))
+        )
         energy_regressor = nn.Linear(backbone_dim, 1)
         valence_regressor = nn.Linear(backbone_dim, 1)
         tempo_regressor = nn.Linear(backbone_dim, 1)
-        key_mode_classifier = nn.Linear(backbone_dim, len(KEY_MODE_LIST))
+        key_mode_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(KEY_MODE_LIST))
+        )
         harmonic_tension_regressor = nn.Linear(backbone_dim, 1)
-        instrumentation_classifier = nn.Linear(backbone_dim, len(INSTRUMENTATION_LIST))
-        rhythm_style_classifier = nn.Linear(backbone_dim, len(RHYTHM_STYLE_LIST))
-        structure_classifier = nn.Linear(backbone_dim, len(STRUCTURE_LIST))
+        instrumentation_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(INSTRUMENTATION_LIST))
+        )
+        rhythm_style_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(RHYTHM_STYLE_LIST))
+        )
+        structure_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(STRUCTURE_LIST))
+        )
         texture_density_regressor = nn.Linear(backbone_dim, 1)
-        production_style_classifier = nn.Linear(backbone_dim, len(PRODUCTION_STYLE_LIST))
-        dynamics_profile_classifier = nn.Linear(backbone_dim, len(DYNAMICS_PROFILE_LIST))
+        production_style_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(PRODUCTION_STYLE_LIST))
+        )
+        dynamics_profile_classifier = nn.Sequential(
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, len(DYNAMICS_PROFILE_LIST))
+        )
         duration_regressor = nn.Linear(backbone_dim, 1)
 
         super(TwoDeepM_model, self).__init__(
