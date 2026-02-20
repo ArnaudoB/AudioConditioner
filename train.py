@@ -18,7 +18,7 @@ def train(model, device, train_loader, val_loader, num_epochs, optimizer, criter
         "optimizer": optimizer.__class__.__name__,
         "criterion": criterion.__class__.__name__,
     })
-    wandb.watch(model, criterion, log="all")
+    wandb.watch(model, criterion, log="all",log_freq=10)
     
     model.train()
     for epoch in range(num_epochs):
@@ -81,4 +81,4 @@ def main(lr=0.001, num_epochs=10, batch_size=32):
     train(model, device, train_loader, val_loader, num_epochs=num_epochs, optimizer=optimizer, criterion=criterion)
 
 if __name__ == "__main__":
-    main()
+    main(lr=0.0005, num_epochs=50, batch_size=64)
