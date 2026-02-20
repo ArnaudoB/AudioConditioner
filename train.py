@@ -5,10 +5,10 @@ from torch.utils.data import DataLoader
 from torch.utils.data import random_split
 from tqdm import tqdm
 
-from models.m_model import M_model, OneDeepM_model
+from models.m_model import M_model, OneDeepM_model, TwoDeepM_model
 from models.clap import CLAPModel
 from utils.dataset import MusicDataset, EmbeddingDataset
-from utils.loss import MSEMusicDescriptorLoss
+from utils.loss import MSEMusicDescriptorLoss, AdaptedMusicDescriptorLoss
 import wandb
 from datetime import datetime
 
@@ -53,7 +53,7 @@ def train(model, device, train_loader, val_loader, num_epochs, optimizer, criter
     
     wandb.finish()
 
-def main(lr=0.001, num_epochs=20, batch_size=32):
+def main(lr=0.001, num_epochs=10, batch_size=32):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
@@ -73,8 +73,8 @@ def main(lr=0.001, num_epochs=20, batch_size=32):
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Initialize model, criterion and optimizer
-    model = OneDeepM_model(clap_dim=512, backbone_dim=256).to(device)
-    criterion = MSEMusicDescriptorLoss()
+    model = TwoDeepM_model(clap_dim=512, backbone_dim=256).to(device)
+    criterion = AdaptedMusicDescriptorLoss() #Weights can be added
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     # Train the model

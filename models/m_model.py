@@ -201,6 +201,48 @@ class OneDeepM_model(M_model):
              **args
         )
 
+class TwoDeepM_model(M_model):
+    def __init__(self, clap_dim, backbone_dim: int, **args):
+        # Define a deeper backbone with multiple layers
+        backbone = nn.Sequential(
+            nn.Linear(clap_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, backbone_dim),
+            nn.ReLU(),
+            nn.Linear(backbone_dim, backbone_dim)
+        )
+        mood_classifier = nn.Linear(backbone_dim, len(MOOD_LIST))
+        energy_regressor = nn.Linear(backbone_dim, 1)
+        valence_regressor = nn.Linear(backbone_dim, 1)
+        tempo_regressor = nn.Linear(backbone_dim, 1)
+        key_mode_classifier = nn.Linear(backbone_dim, len(KEY_MODE_LIST))
+        harmonic_tension_regressor = nn.Linear(backbone_dim, 1)
+        instrumentation_classifier = nn.Linear(backbone_dim, len(INSTRUMENTATION_LIST))
+        rhythm_style_classifier = nn.Linear(backbone_dim, len(RHYTHM_STYLE_LIST))
+        structure_classifier = nn.Linear(backbone_dim, len(STRUCTURE_LIST))
+        texture_density_regressor = nn.Linear(backbone_dim, 1)
+        production_style_classifier = nn.Linear(backbone_dim, len(PRODUCTION_STYLE_LIST))
+        dynamics_profile_classifier = nn.Linear(backbone_dim, len(DYNAMICS_PROFILE_LIST))
+        duration_regressor = nn.Linear(backbone_dim, 1)
+
+        super(TwoDeepM_model, self).__init__(
+            backbone=backbone,
+            mood_classifier=mood_classifier,
+            energy_regressor=energy_regressor,
+            valence_regressor=valence_regressor,
+            tempo_regressor=tempo_regressor,
+            key_mode_classifier=key_mode_classifier,
+            harmonic_tension_regressor=harmonic_tension_regressor,
+            instrumentation_classifier=instrumentation_classifier,
+            rhythm_style_classifier=rhythm_style_classifier,
+            structure_classifier=structure_classifier,
+            texture_density_regressor=texture_density_regressor,
+            production_style_classifier=production_style_classifier,
+            dynamics_profile_classifier=dynamics_profile_classifier,
+            duration_regressor=duration_regressor,
+             **args
+        )
+
 
 def test():
     model = OneDeepM_model(clap_dim=512, backbone_dim=256)
