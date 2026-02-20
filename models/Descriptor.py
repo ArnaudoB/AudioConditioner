@@ -2,17 +2,14 @@ import sys
 import os
 # Add parent directory to Python path to import utils
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-from typing import List, Union
-import random
+from typing import Union
 from utils.music_descriptor import ATTRIBUTES_THAT_ARE_LISTS, CLASSIFICATION_ATTRIBUTES, REGRESSION_ATTRIBUTES, MusicDescriptor
 from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, DURATION_RANGE, KEY_MODE_LIST
 
-class M_model(nn.Module):
+class Descriptor(nn.Module):
     
     """
     A multi-task model that takes a scene description as input and outputs a MusicDescriptor JSON object. The model consists of a shared backbone for feature extraction and multiple heads for predicting different attributes of the music descriptor. The generate_music_descriptor method combines the outputs of the heads into a structured MusicDescriptor object, applying any necessary post-processing (e.g., mapping class indices to labels, applying top-p sampling for multi-label outputs).
@@ -52,7 +49,8 @@ class M_model(nn.Module):
                  duration_regressor: nn.Module,
                  top_p: float = 0.9,
                  **args):
-        super(M_model, self).__init__()
+        
+        super(Descriptor, self).__init__()
         self.backbone = backbone
         self.mood_classifier = mood_classifier
         self.energy_regressor = energy_regressor
@@ -115,14 +113,18 @@ class M_model(nn.Module):
 
         return output
     
+    
     def to_range_int(self, value, min_val, max_val):
         """Converts a normalized value between 0 and 1 to an integer in the specified range.
         """
         return int(value * (max_val - min_val) + min_val)
     
+    
     def generate_music_descriptor(self, x, top_p: Union[float, None] = None):
+
         if top_p is None:
             top_p = self.top_p
+
         output = self.forward(x)
 
 
@@ -151,6 +153,7 @@ class M_model(nn.Module):
                 output[attribute] = self.to_range_int(output[attribute], *DURATION_RANGE)
 
         # Construct the MusicDescriptor object using the post-processed outputs
+
         music_descriptor = MusicDescriptor(
             mood=output["mood"],
             energy=output["energy"],
@@ -166,10 +169,11 @@ class M_model(nn.Module):
             dynamics_profile=output["dynamics_profile"],
             duration=output["duration"]
         )
+
         return music_descriptor
 
 
-class OneDeepM_model(M_model):
+class OneDeepDescriptor(Descriptor):
     def __init__(self, clap_dim, backbone_dim: int, **args):
         backbone = nn.Linear(clap_dim, backbone_dim)
         mood_classifier = nn.Linear(backbone_dim, len(MOOD_LIST))
@@ -186,7 +190,7 @@ class OneDeepM_model(M_model):
         dynamics_profile_classifier = nn.Linear(backbone_dim, len(DYNAMICS_PROFILE_LIST))
         duration_regressor = nn.Linear(backbone_dim, 1)
 
-        super(OneDeepM_model, self).__init__(
+        super(OneDeepDescriptor, self).__init__(
             backbone=backbone,
             mood_classifier=mood_classifier,
             energy_regressor=energy_regressor,
@@ -204,7 +208,7 @@ class OneDeepM_model(M_model):
              **args
         )
 
-class TwoDeepM_model(M_model):
+class TwoDeepDescriptor(Descriptor):
     def __init__(self, clap_dim, backbone_dim: int, **args):
         # Define a deeper backbone with multiple layers
         backbone = nn.Sequential(
@@ -256,7 +260,7 @@ class TwoDeepM_model(M_model):
         )
         duration_regressor = nn.Linear(backbone_dim, 1)
 
-        super(TwoDeepM_model, self).__init__(
+        super(TwoDeepDescriptor, self).__init__(
             backbone=backbone,
             mood_classifier=mood_classifier,
             energy_regressor=energy_regressor,
@@ -276,7 +280,7 @@ class TwoDeepM_model(M_model):
 
 
 def test():
-    model = OneDeepM_model(clap_dim=512, backbone_dim=256)
+    model = OneDeepDescriptor(clap_dim=512, backbone_dim=256)
     x = torch.randn(1, 512)  # Simulated CLAP features
     output = model.forward(x)
     music_descriptor = model.generate_music_descriptor(x, top_p=0.05)
@@ -297,4 +301,3 @@ if __name__ == "__main__":
 
         
     test()
-        

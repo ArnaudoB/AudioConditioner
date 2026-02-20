@@ -24,7 +24,7 @@ Rules:
 - Choose instrumentation ONLY from: ["low strings","strings","brass","woodwinds","choir","war drums","taiko","timpani","cinematic percussion","piano","soft piano","acoustic guitar","electric guitar","bass","synth bass","pads","ambient textures","lofi drums","trap drums","shakers","bells","marimba","harp","flute","organ"].
 - Choose rhythm_style ONLY from: ["sparse","pulsing","steady","syncopated","driving","minimal","floating"].
 - Choose structure ONLY from: ["loopable","slow build then climax","constant evolving texture","intro then drop then resolve","rise and fall"].
-- Choose production_style ONLY from: ["cinematic","orchestral","ambient","lofi","electronic","modern","vintage","wide stereo","reverb heavy","clean studio"].
+- Choose production_style ONLY from (you can pick several styles) : ["cinematic","orchestral","ambient","lofi","electronic","modern","vintage","wide stereo","reverb heavy","clean studio"].
 - Choose dynamics_profile ONLY from: ["gradual crescendo","constant intensity","sudden impact near end","soft throughout","build and release"].
 - Must be instrumental (do not mention vocals).
 - Pick values that best match the SCENE.
