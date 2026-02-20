@@ -128,7 +128,8 @@ class M_model(nn.Module):
 
         for attribute in self.attributes_that_are_lists:
             probs = output[attribute]
-            indices = torch.where(probs > top_p)[1]
+    
+            indices = torch.where(probs > top_p)[1] # NE MARCHE PAS S'IL N'Y A PAS DE CLASSES AU-DESSUS DU SEUIL top_p, IL FAUT GÉRER CE CAS
             labels = [globals()[f"{attribute.upper()}_LIST"][i] for i in indices]
             output[attribute] = labels
 
