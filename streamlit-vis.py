@@ -6,6 +6,7 @@ from models.BLIPModel import BLIPModel
 from models.CLAPModel import CLAPModel
 from models.Descriptor import TwoDeepDescriptor
 from models.StableAudioModel import StableAudioModel
+from utils.scene_generation import generate_scene
 import soundfile as sf
 import io
 
@@ -25,10 +26,14 @@ def load_models():
     blip_model = BLIPModel()
     return clap_model, music_prompter, conditioner, blip_model
 
+# Initialize scene suggestion in session state
+if 'scene_suggestion' not in st.session_state:
+    st.session_state.scene_suggestion = generate_scene(1, seed=None)[0]
+
 # Input
 scene_text = st.text_area(
     "Enter a scene description:",
-    value="A teacher is giving a lecture in a classroom, with students attentively listening and taking notes.",
+    value=st.session_state.scene_suggestion,
     height=100
 )
 # Audio generation parameters
