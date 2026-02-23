@@ -33,31 +33,20 @@ class AudioConditioner(nn.Module):
         elif input_type == "text":
             scene_text = input
         
-        print("Getting text embedding from CLAP model...")
-        text_embedding = self.clap_model(scene_text)[0] # get text embedding from CLAP model (num_prompts, clap_dim)
-        print(f"Text embedding shape: {text_embedding.shape}")
+        text_embedding = self.clap_model(scene_text)[0] # get text embedding from CLAP model (1, clap_dim)
 
-        print("Generating music descriptor from text embedding...")
         music_descriptor = self.descriptor.generate_music_descriptor(self.descriptor(text_embedding))
         music_prompt = music_descriptor.prompt()
-        print(f"Generated music prompt: {music_prompt}")
 
 
-        print("Generating audio from music prompt...")
-        generated_audio = self.audio_gen_model(music_prompt) # (num_prompts, num_waves_per_prompt, num_channels, num_samples)
-        print(f"Generated audio shape: {generated_audio.shape}")
+        generated_audio = self.audio_gen_model(music_prompt) # (num_waves_per_prompt, num_channels, num_samples)
 
-        print("Getting audio embedding from CLAP model...")
-        generated_audio_embedding = self.clap_model(texts=None, audio_waveforms=generated_audio, sampling_rate=48000)[1] # get audio embedding from CLAP model (num_prompts, num_waveforms_per_prompt, clap_dim)
-        print(f"Generated audio embedding shape: {generated_audio_embedding.shape}")
+        generated_audio_embedding = self.clap_model(texts=None, audio_waveforms=generated_audio, sampling_rate=48000)[1] # get audio embedding from CLAP model (num_waveforms_per_prompt, clap_dim)
 
-        # text_embedding is (num_prompts, clap_dim) and generated_audio_embedding is (num_prompts, num_waveforms_per_prompt, clap_dim), we need to compute the cosine similarity between each generated audio embedding and the text embedding, resulting in a dissimilarity score for each generated audio
+        # text_embedding is (1, clap_dim) and generated_audio_embedding is (num_waveforms_per_prompt, clap_dim), we need to compute the cosine similarity between each generated audio embedding and the text embedding, resulting in a dissimilarity score for each generated audio
         # so we change the shape
-        text_embedding = text_embedding.unsqueeze(1).repeat(1, generated_audio_embedding.shape[1], 1) # (num_prompts, num_waveforms_per_prompt, clap_dim)
-        print(f"Text embedding shape after unsqueeze and repeat: {text_embedding.shape}")
-        print(f"Generated audio embedding shape: {generated_audio_embedding.shape}")
-        dissimilarity_score = F.cosine_similarity(generated_audio_embedding, text_embedding, dim=-1) # (num_prompts, num_waveforms_per_prompt)
-        print(f"Dissimilarity score shape: {dissimilarity_score.shape}")
+        text_embedding = text_embedding.repeat(generated_audio_embedding.shape[0], 1) # (num_waveforms_per_prompt, clap_dim)
+        dissimilarity_score = F.cosine_similarity(generated_audio_embedding, text_embedding, dim=-1) # (num_waveforms_per_prompt,)
 
         return generated_audio, music_descriptor, dissimilarity_score
 
@@ -68,7 +57,7 @@ if __name__ == "__main__":
     from CLAPModel import CLAPModel
     from Descriptor import OneDeepDescriptor
 
-    audio_gen_model = StableAudioModel()
+    audio_gen_model = StableAudioModel(num_inference_steps=50, num_waveforms_per_prompt=3, seed=42)
     descriptor = OneDeepDescriptor(clap_dim=512, backbone_dim=256)
     blip_model = BLIPModel()
     clap_model = CLAPModel()
