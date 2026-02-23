@@ -48,15 +48,15 @@ class StableAudioModel(torch.nn.Module):
         self.seed = seed
 
 
-    def generate_audio(self, prompt, negative_prompt=None):
+    def generate_audio(self, prompt, negative_prompt=None, audio_end_in_s=None, num_waveforms_per_prompt=None, num_inference_steps=None):
         """Generate audio from a single prompt"""
         generator = torch.Generator(device=self.pipeline.device).manual_seed(self.seed)
         audio = self.pipeline(
             prompt,
             negative_prompt=negative_prompt,
-            num_inference_steps=self.num_inference_steps,
-            audio_end_in_s=self.audio_end_in_s,
-            num_waveforms_per_prompt=self.num_waveforms_per_prompt,
+            num_inference_steps=self.num_inference_steps if num_inference_steps is None else num_inference_steps,
+            audio_end_in_s=self.audio_end_in_s if audio_end_in_s is None else audio_end_in_s,
+            num_waveforms_per_prompt=self.num_waveforms_per_prompt if num_waveforms_per_prompt is None else num_waveforms_per_prompt,
             generator=generator,
         ).audios
         return audio
@@ -84,12 +84,12 @@ class StableAudioModel(torch.nn.Module):
         return audios
 
     
-    def forward(self, prompt, negative_prompt=None):
+    def forward(self, prompt, negative_prompt=None, audio_end_in_s=None, num_waveforms_per_prompt=None, num_inference_steps=None):
         """Forward method that can handle single prompt or list of prompts"""
         if isinstance(prompt, list):
             return self.generate_audio_batch(prompt, negative_prompt)
         else:
-            return self.generate_audio(prompt, negative_prompt)
+            return self.generate_audio(prompt, negative_prompt, audio_end_in_s, num_waveforms_per_prompt, num_inference_steps)
         
     
 if __name__ == "__main__":

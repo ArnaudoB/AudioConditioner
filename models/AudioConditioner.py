@@ -26,7 +26,7 @@ class AudioConditioner(nn.Module):
         self.clap_model = clap_model.to(self.device)
 
         
-    def forward(self, input, input_type: str, **kwargs):
+    def forward(self, input, input_type: str,  audio_end_in_s=None, num_waveforms_per_prompt=None, num_inference_steps=None, **kwargs):
         scene_text = ""
         if input_type == "image":
             scene_text = self.blip_model(input)
@@ -39,7 +39,10 @@ class AudioConditioner(nn.Module):
         music_prompt = music_descriptor.prompt()
 
 
-        generated_audio = self.audio_gen_model(music_prompt) # (num_waves_per_prompt, num_channels, num_samples)
+        generated_audio = self.audio_gen_model(music_prompt, 
+                                               audio_end_in_s=audio_end_in_s, 
+                                               num_waveforms_per_prompt=num_waveforms_per_prompt, 
+                                               num_inference_steps=num_inference_steps) # (num_waves_per_prompt, num_channels, num_samples)
 
         generated_audio_embedding = self.clap_model(texts=None, audio_waveforms=generated_audio, sampling_rate=48000)[1] # get audio embedding from CLAP model (num_waveforms_per_prompt, clap_dim)
 
@@ -65,6 +68,6 @@ if __name__ == "__main__":
     conditioner = AudioConditioner(audio_gen_model, descriptor, blip_model, clap_model)
 
     sample_text = "Brutus prepares to fight against Caesar in the Roman Forum, with a tense and dramatic atmosphere."
-    generated_audio, music_descriptor, dissimilarity_score = conditioner(sample_text, input_type="text")
+    generated_audio, music_descriptor, dissimilarity_score = conditioner(sample_text, input_type="text", audio_end_in_s=30.0, num_waveforms_per_prompt=1, num_inference_steps=50)
     print("Generated audio shape:", generated_audio.shape)
     print("Dissimilarity score:", dissimilarity_score)
