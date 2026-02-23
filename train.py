@@ -4,9 +4,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
 from tqdm import tqdm
-
-from models.m_model import M_model, OneDeepM_model, TwoDeepM_model
-from models.clap import CLAPModel
+from models.Descriptor import Descriptor, OneDeepDescriptor, TwoDeepDescriptor
+from models.CLAPModel import CLAPModel
 from utils.dataset import MusicDataset, EmbeddingDataset
 from utils.loss import MSEMusicDescriptorLoss, AdaptedMusicDescriptorLoss
 import wandb
@@ -73,7 +72,7 @@ def main(lr=0.001, num_epochs=10, batch_size=32):
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
 
     # Initialize model, criterion and optimizer
-    model = TwoDeepM_model(clap_dim=512, backbone_dim=256).to(device)
+    model = TwoDeepDescriptor(clap_dim=512, backbone_dim=256).to(device)
     criterion = AdaptedMusicDescriptorLoss() #Weights can be added
     optimizer = optim.Adam(model.parameters(), lr=lr)
 

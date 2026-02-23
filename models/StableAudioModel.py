@@ -12,7 +12,7 @@ class StableAudioModel(torch.nn.Module):
     It allows for generating audio from text prompts, with support for both single prompts and batch processing. The model uses 8-bit quantization for the text encoder and transformer to reduce memory usage while maintaining performance. The forward method can handle both single prompts and lists of prompts, making it flexible for different use cases. The generated audio is returned as a tensor.
     """
 
-    def __init__(self, model_id="stabilityai/stable-audio-open-1.0", num_inference_steps=50, audio_end_in_s=10.0, num_waveforms_per_prompt=2, seed=42):
+    def __init__(self, model_id="stabilityai/stable-audio-open-1.0", num_inference_steps=50, audio_end_in_s=10.0, num_waveforms_per_prompt=3, seed=42):
         super().__init__()
 
         quant_config = BitsAndBytesConfig(load_in_8bit=True)
