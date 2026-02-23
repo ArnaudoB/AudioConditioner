@@ -51,6 +51,11 @@ class AudioConditioner(nn.Module):
         text_embedding = text_embedding.repeat(generated_audio_embedding.shape[0], 1) # (num_waveforms_per_prompt, clap_dim)
         dissimilarity_score = F.cosine_similarity(generated_audio_embedding, text_embedding, dim=-1) # (num_waveforms_per_prompt,)
 
+        # Sort generated audio and dissimilarity scores by descending similarity score
+        sorted_indices = torch.argsort(dissimilarity_score, descending=True)
+        generated_audio = generated_audio[sorted_indices]
+        dissimilarity_score = dissimilarity_score[sorted_indices]
+
         return generated_audio, music_descriptor, dissimilarity_score
 
 if __name__ == "__main__":
