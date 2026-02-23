@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 import random
 import os
 
@@ -99,12 +99,12 @@ emotional_events = [
 ]
 
 def generate_scene(N: int, 
-                   seed: int = None, 
+                   seed: Union[int, None] = None, 
                    characters: List[str] = characters,
                    characteristics: List[str] = characteristics,
                    settings: List[str] = settings,
                    emotional_events: List[str] = emotional_events,
-                   output_file: str = None) -> List[str]:
+                   output_file: Union[str, None] = None) -> List[str]:
     """
     Generates N unique scenes by randomly combining characters, characteristics, settings, and emotional events.
 
