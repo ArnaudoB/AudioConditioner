@@ -25,3 +25,4 @@ librosa
 
 bitsandbytes>=0.46.1
 wandb
+streamlit

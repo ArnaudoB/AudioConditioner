@@ -13,7 +13,11 @@ import soundfile as sf
 
 
 
-def full_pipeline(scene_text, music_prompter: Descriptor, clap_model: CLAPModel, conditioner: StableAudioModel, device=None):
+def full_pipeline(scene_text, 
+                  music_prompter: Descriptor, 
+                  clap_model: CLAPModel, 
+                  conditioner: StableAudioModel, 
+                  device=None):
 
     # Step 1: Use the CLAP model to get the text embedding for the scene description
     text_embedding, _ = clap_model(texts=[scene_text], audio_waveforms=None)
@@ -28,7 +32,7 @@ def full_pipeline(scene_text, music_prompter: Descriptor, clap_model: CLAPModel,
                        negative_prompt=negative_prompt, 
                        audio_end_in_s=30.0,
                        num_waveforms_per_prompt=1,
-                       num_inference_steps=100)
+                       num_inference_steps=50)
     output = audio[0].T.float().cpu().numpy()
 
     return music_descriptor, output
@@ -48,5 +52,5 @@ def main(prompt: str):
     print("Generated audio saved to sounds/generated_audio.wav")
     
 if __name__ == "__main__":
-    prompt = "A man is lying on a beach at sunset, reflecting on his life and feeling a mix of nostalgia and hope for the future."
+    prompt = "A teacher is giving a lecture in a classroom, with students attentively listening and taking notes."
     main(prompt)
