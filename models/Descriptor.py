@@ -120,7 +120,7 @@ class Descriptor(nn.Module):
         return int(value * (max_val - min_val) + min_val)
     
     
-    def generate_music_descriptor(self, x, top_p: Union[float, None] = None):
+    def generate_music_descriptor(self, output, top_p: Union[float, None] = None):
 
         if top_p is None:
             top_p = self.top_p
