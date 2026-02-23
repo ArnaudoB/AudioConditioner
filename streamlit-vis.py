@@ -1,13 +1,14 @@
 import streamlit as st
 import torch
 import numpy as np
-from full_text_pipeline import full_pipeline
-from models.clap import CLAPModel
+from models.AudioConditioner import AudioConditioner
+from models.BLIPModel import BLIPModel
+from models.CLAPModel import CLAPModel
 from models.Descriptor import TwoDeepDescriptor
-from models.stable_audio import StableAudioModel
+from models.StableAudioModel import StableAudioModel
 import soundfile as sf
-import os
 import io
+
 
 st.set_page_config(page_title="Audio Conditioner", layout="wide")
 
@@ -18,10 +19,11 @@ st.write("Generate music from text descriptions")
 @st.cache_resource
 def load_models():
     clap_model = CLAPModel()
-    music_prompter = TwoDeepDescriptor(clap_dim=512, backbone_dim=256)
+    music_prompter = TwoDeepDescriptor(clap_dim=512, backbone_dim=256,top_p=0.1)
     music_prompter.load_state_dict(torch.load("saves/model_checkpoint.pt", map_location=torch.device('cpu')))
     conditioner = StableAudioModel()
-    return clap_model, music_prompter, conditioner
+    blip_model = BLIPModel()
+    return clap_model, music_prompter, conditioner, blip_model
 
 # Input
 scene_text = st.text_area(
@@ -29,20 +31,27 @@ scene_text = st.text_area(
     value="A teacher is giving a lecture in a classroom, with students attentively listening and taking notes.",
     height=100
 )
+# Audio generation parameters
+col1, col2, col3 = st.columns(3)
+with col1:
+    audio_end_in_s = st.slider("Audio Duration (seconds)", min_value=5, max_value=40, value=30)
+with col2:
+    num_waveforms_per_prompt = st.slider("Number of Waveforms", min_value=1, max_value=5, value=1)
+with col3:
+    num_inference_steps = st.slider("Inference Steps", min_value=10, max_value=100, value=50)
 
 if st.button("🎬 Generate Audio"):
     with st.spinner("Loading models..."):
-        clap_model, music_prompter, conditioner = load_models()
+        clap_model, music_prompter, conditioner, blip_model = load_models()
+        audio_conditioner = AudioConditioner(conditioner, music_prompter, blip_model, clap_model)
     
     with st.spinner("Generating audio..."):
-        music_descriptor, audio = full_pipeline(
-            scene_text, 
-            music_prompter, 
-            clap_model, 
-            conditioner, 
-            device=torch.device('cpu')
-        )
-    
+
+        generated_audio, music_descriptor, dissimilarity_score = audio_conditioner(scene_text, 
+                                                                                input_type="text", 
+                                                                                audio_end_in_s=audio_end_in_s, 
+                                                                                num_waveforms_per_prompt=num_waveforms_per_prompt, 
+                                                                                num_inference_steps=num_inference_steps)
     # Display results
     st.success("Audio generated successfully!")
     
@@ -54,22 +63,25 @@ if st.button("🎬 Generate Audio"):
         st.subheader("Negative Prompt")
         st.write(music_descriptor.negative_prompt())
     
-    # Play audio
-    st.subheader("Generated Audio")
-    buffer = io.BytesIO()
-    
-    # Écriture de l'array NumPy dans le buffer au format WAV
-    sf.write(buffer, audio, samplerate=44100, format='WAV')
-    buffer.seek(0) # On remet le curseur au début du fichier en mémoire
+    buffers = [io.BytesIO() for _ in range(num_waveforms_per_prompt)]
+    for i in range(num_waveforms_per_prompt):
+        audio = generated_audio[i].T.float().cpu().numpy()
+        buffer = buffers[i]
+        sf.write(buffer, audio, samplerate=44100, format='WAV')
+        buffer.seek(0) # On remet le curseur au début du fichier en mémoire
 
     # Play audio
     st.subheader("Generated Audio")
-    st.audio(buffer, format="audio/wav")
-    
-    # Save option
-    st.download_button(
-        label="💾 Download Audio",
-        data=buffer.getvalue(),
-        file_name="generated_audio.wav",
-        mime="audio/wav"
-    )
+    for i, buffer in enumerate(buffers):
+        with st.container(border=True):
+            st.write(f"Waveform {i+1} - Dissimilarity Score: {dissimilarity_score[i]:.4f}")
+            col_audio, col_download = st.columns(2)
+            with col_audio:
+                st.audio(buffer, format="audio/wav")
+            with col_download:
+                st.download_button(
+            label=f"💾 Download Audio {i+1}",
+            data=buffers[i].getvalue(),
+            file_name=f"generated_audio_{i+1}.wav",
+            mime="audio/wav"
+            )
