@@ -125,8 +125,6 @@ class Descriptor(nn.Module):
         if top_p is None:
             top_p = self.top_p
 
-        output = self.forward(x)
-
 
         for attribute in self.attributes_that_are_lists:
             probs = output[attribute]

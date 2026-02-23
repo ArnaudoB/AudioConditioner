@@ -23,8 +23,8 @@ def full_pipeline(scene_text,
     text_embedding, _ = clap_model(texts=[scene_text], audio_waveforms=None)
     text_embedding = text_embedding.squeeze(0).to(device)
     # Step 2: Use the music prompter to generate a music descriptor from the text embedding
-    #output = music_prompter(text_embedding)
-    music_descriptor = music_prompter.generate_music_descriptor(text_embedding, top_p=1e-1)
+    output = music_prompter(text_embedding)
+    music_descriptor = music_prompter.generate_music_descriptor(output, top_p=1e-1)
 
     prompt = music_descriptor.prompt()
     negative_prompt = music_descriptor.negative_prompt()
