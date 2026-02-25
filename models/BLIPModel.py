@@ -1,20 +1,41 @@
 import torch
-from transformers import BlipProcessor, BlipForConditionalGeneration
+from PIL import Image
+from transformers import AutoProcessor, BlipForConditionalGeneration
 
 class BLIPModel(torch.nn.Module):
-    """BLIPModel is a wrapper around the BLIPModel from Hugging Face's transformers library. 
-    It provides methods to extract text and image embeddings using the BLIP model. 
-    The forward method can handle both text and image inputs, returning their respective embeddings. 
-    This model can be used for tasks like cross-modal retrieval or similarity computation between text and images.
     """
-    def __init__(self, model_id="Salesforce/blip-image-captioning-base"):
+    Modèle de description d'image utilisant BLIP.
+    Génère une phrase complète décrivant l'image fournie.
+    """
+    def __init__(self, 
+                 model_id="Salesforce/blip-image-captioning-base",
+                 prompt="a picture of "): 
         super().__init__()
-        self.processor = BlipProcessor.from_pretrained(model_id)
-        self.model = BlipForConditionalGeneration.from_pretrained(model_id)
+        self.processor = AutoProcessor.from_pretrained(model_id, cache_dir="/Data/audiocond-models")
+        self.model = BlipForConditionalGeneration.from_pretrained(
+            model_id,
+            torch_dtype=torch.float16,
+            device_map="auto",
+            cache_dir="/Data/audiocond-models",
+        )
+        self.prompt = prompt
 
-    def forward(self, input):
-        # Process the input (image) and return the corresponding caption
-        inputs = self.processor(input, return_tensors="pt")
+    def forward(self, image: Image.Image):
+        inputs = self.processor(images=image, text=self.prompt, return_tensors="pt").to(self.model.device, torch.float16)
+        
         with torch.no_grad():
-            outputs = self.model(**inputs)
-        return self.processor.decode(outputs.logits.argmax(dim=-1)[0], skip_special_tokens=True)
+            outputs = self.model.generate(**inputs, max_new_tokens=50)
+
+        result = self.processor.decode(outputs[0], skip_special_tokens=True)
+        result = result[len(self.prompt):] if result.startswith(self.prompt) else result
+            
+        return result
+
+if __name__ == "__main__":
+    blip_model = BLIPModel()
+    
+    image = Image.open("pictures/images.jpeg")
+    image.show()
+    
+    caption = blip_model(image)
+    print("Generated caption:", caption)
