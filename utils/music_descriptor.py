@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from typing import List, Union
 import json
 import torch
-from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, DURATION_RANGE, KEY_MODE_LIST
+from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, STRUCTURE_LIST, PRODUCTION_STYLE_LIST, DYNAMICS_PROFILE_LIST, TEMPO_RANGE, KEY_MODE_LIST
 
 ATTRIBUTES_THAT_ARE_LISTS = ["mood", "instrumentation", "production_style"]
 CLASSIFICATION_ATTRIBUTES = ["mood", "key_mode", "instrumentation", "rhythm_style", "structure", "production_style", "dynamics_profile"]
@@ -29,7 +29,6 @@ class MusicDescriptor:
     - texture_density: A float between 0 and 1 indicating the density of the musical texture (0 = very sparse, 1 = very dense).
     - production_style: A list of strings describing the production style of the music (e.g., "lo-fi", "cinematic", "electronic"...).
     - dynamics_profile: A string describing the dynamics profile of the music (e.g., "gradual build", "sudden drops", "consistent energy"...).
-    - duration: An integer representing the desired duration of the music in seconds.
     """
 
     def __init__(self,
@@ -45,7 +44,6 @@ class MusicDescriptor:
                 texture_density: Union[float, None],
                 production_style: Union[List[str], None],
                 dynamics_profile: Union[str, None],
-                duration: Union[int, None],
                 excluded_elements: Union[List[str], None] = None,
                 unwanted_moods: Union[List[str], None] = None,
                 quality_preset: bool = True, # Pour inclure par défaut des tags de qualité
@@ -63,7 +61,6 @@ class MusicDescriptor:
         self.texture_density = texture_density
         self.production_style = production_style
         self.dynamics_profile = dynamics_profile
-        self.duration = duration
         self.excluded_elements = excluded_elements
         self.unwanted_moods = unwanted_moods
         self.quality_preset = quality_preset
@@ -128,8 +125,6 @@ class MusicDescriptor:
                     output[attribute] = output[attribute].to(device)
                 if attribute == "tempo":
                     output[attribute] = self.inv_to_range_int(output[attribute], *TEMPO_RANGE)
-                elif attribute == "duration":
-                    output[attribute] = self.inv_to_range_int(output[attribute], *DURATION_RANGE)
 
 
 
@@ -348,9 +343,6 @@ class MusicDescriptor:
         
         # Sentence 7: constraints
         sentence = ""
-
-        if self.duration:
-            sentence += f"Duration around {self.duration} seconds"
         
         if sentence:
             sentence += "."
@@ -364,7 +356,6 @@ def read_music_descriptor_from_json(json_str: str) -> tuple[str, MusicDescriptor
     descriptor = data.get("descriptor", {})
     scene = data.get("scene", "unknown_scene")
     descriptor["tempo"] = descriptor["tempo_bpm"] 
-    descriptor["duration"] = descriptor["duration_s"]  
     descriptor.pop("tempo_bpm", None)
     descriptor.pop("duration_s", None)
     return scene, MusicDescriptor(**descriptor)

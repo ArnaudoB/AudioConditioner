@@ -46,7 +46,6 @@ class Descriptor(nn.Module):
                  texture_density_regressor: nn.Module,
                  production_style_classifier: nn.Module,
                  dynamics_profile_classifier: nn.Module,
-                 duration_regressor: nn.Module,
                  top_p: float = 0.9,
                  **args):
         
@@ -64,7 +63,6 @@ class Descriptor(nn.Module):
         self.texture_density_regressor = texture_density_regressor
         self.production_style_classifier = production_style_classifier
         self.dynamics_profile_classifier = dynamics_profile_classifier
-        self.duration_regressor = duration_regressor
         self.top_p = top_p
 
         self.attributes_that_are_lists = ATTRIBUTES_THAT_ARE_LISTS
@@ -85,7 +83,6 @@ class Descriptor(nn.Module):
         texture_density = self.texture_density_regressor(features)
         production_style = self.production_style_classifier(features)
         dynamics_profile = self.dynamics_profile_classifier(features)
-        duration = self.duration_regressor(features)
 
         output = {
             "mood": mood,
@@ -100,7 +97,6 @@ class Descriptor(nn.Module):
             "texture_density": texture_density,
             "production_style": production_style,
             "dynamics_profile": dynamics_profile,
-            "duration": duration
         }
 
         # Post-process outputs to convert them into the expected formats (e.g., mapping class indices to labels, applying activation functions)
@@ -146,8 +142,6 @@ class Descriptor(nn.Module):
             output[attribute] = output[attribute].item()  # Convert tensor to scalar value
             if attribute == "tempo":
                 output[attribute] = self.to_range_int(output[attribute], *TEMPO_RANGE)
-            elif attribute == "duration":
-                output[attribute] = self.to_range_int(output[attribute], *DURATION_RANGE)
 
         # Construct the MusicDescriptor object using the post-processed outputs
 
@@ -164,7 +158,6 @@ class Descriptor(nn.Module):
             texture_density=output["texture_density"],
             production_style=output["production_style"],
             dynamics_profile=output["dynamics_profile"],
-            duration=output["duration"]
         )
 
         return music_descriptor
@@ -185,7 +178,6 @@ class OneDeepDescriptor(Descriptor):
         texture_density_regressor = nn.Linear(backbone_dim, 1)
         production_style_classifier = nn.Linear(backbone_dim, len(PRODUCTION_STYLE_LIST))
         dynamics_profile_classifier = nn.Linear(backbone_dim, len(DYNAMICS_PROFILE_LIST))
-        duration_regressor = nn.Linear(backbone_dim, 1)
 
         super(OneDeepDescriptor, self).__init__(
             backbone=backbone,
@@ -201,7 +193,6 @@ class OneDeepDescriptor(Descriptor):
             texture_density_regressor=texture_density_regressor,
             production_style_classifier=production_style_classifier,
             dynamics_profile_classifier=dynamics_profile_classifier,
-            duration_regressor=duration_regressor,
              **args
         )
 
@@ -255,7 +246,6 @@ class TwoDeepDescriptor(Descriptor):
             nn.ReLU(),
             nn.Linear(backbone_dim, len(DYNAMICS_PROFILE_LIST))
         )
-        duration_regressor = nn.Linear(backbone_dim, 1)
 
         super(TwoDeepDescriptor, self).__init__(
             backbone=backbone,
@@ -271,7 +261,6 @@ class TwoDeepDescriptor(Descriptor):
             texture_density_regressor=texture_density_regressor,
             production_style_classifier=production_style_classifier,
             dynamics_profile_classifier=dynamics_profile_classifier,
-            duration_regressor=duration_regressor,
              **args
         )
 

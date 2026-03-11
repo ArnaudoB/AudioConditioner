@@ -19,10 +19,12 @@ def train(model, device, train_loader, val_loader, num_epochs, optimizer, criter
     })
     wandb.watch(model, criterion, log="all",log_freq=10)
     
-    model.train()
     for epoch in range(num_epochs):
+        model.train()
         running_loss = 0.0
         for inputs, labels in tqdm(train_loader, desc=f"Epoch {epoch+1}/{num_epochs}"):
+            inputs = inputs.to(device)
+            labels = {k: v.to(device) for k, v in labels.items()}
             optimizer.zero_grad()
             outputs = model(inputs)
             loss = criterion(outputs, labels)
@@ -35,8 +37,11 @@ def train(model, device, train_loader, val_loader, num_epochs, optimizer, criter
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}")
         
         val_loss_total = 0.0
+        model.eval()
         with torch.no_grad():
             for inputs, labels in tqdm(val_loader, desc=f"Validation Epoch {epoch+1}/{num_epochs}"):
+                inputs = inputs.to(device)
+                labels = {k: v.to(device) for k, v in labels.items()}
                 outputs = model(inputs)
                 val_loss = criterion(outputs, labels)
                 val_loss_total += val_loss.item()
