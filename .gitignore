@@ -4,3 +4,5 @@ __pycache__/
 wandb/
 .conda/
 wandb/
+short_stories/
+chunks/

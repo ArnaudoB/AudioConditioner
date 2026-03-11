@@ -27,18 +27,8 @@ def extract_json(text: str) -> str:
     raise ValueError("Unclosed JSON object")
 
 
-# Load teacher model
-tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, use_fast=True)
-model = AutoModelForCausalLM.from_pretrained(
-    MODEL_ID,
-    device_map="auto",
-    dtype=torch.float16
-)
-model.eval()
-
-
 @torch.no_grad()
-def teacher(scene_text: str, max_new_tokens: int = 320, temperature: float = 0.2) -> str:
+def teacher(scene_text: str, max_new_tokens: int = 320, temperature: float = 0.2, tokenizer=None, model=None) -> str:
     """
     Prompts the teacher model with the given scene text and returns the answer.
     """
@@ -59,13 +49,13 @@ def teacher(scene_text: str, max_new_tokens: int = 320, temperature: float = 0.2
     return response
 
 
-def label_scene(scene_text: str, retries: int = 10):
+def label_scene(scene_text: str, retries: int = 10, tokenizer=None, model=None) -> dict:
     """
     Function to label a scene using the teacher model. It will retry to parse the JSON up to `retries` times if the model's output is not valid JSON.
     """
     last_err = None
     for _ in range(retries):
-        gen = teacher(scene_text)
+        gen = teacher(scene_text, tokenizer=tokenizer, model=model)
         try:
             js = extract_json(gen)
             data = orjson.loads(js)
@@ -76,7 +66,7 @@ def label_scene(scene_text: str, retries: int = 10):
 
 
 
-def main(path_to_scenes="./data/generated_scenes.txt", out_path="./data/teacher_dataset.jsonl"):
+def main(path_to_scenes="./data/generated_scenes.txt", out_path="./data/teacher_dataset.jsonl", tokenizer=None, model=None):
 
     with open(path_to_scenes, "r") as f:
         scenes = [line.strip() for line in f.readlines() if line.strip()]
@@ -85,10 +75,18 @@ def main(path_to_scenes="./data/generated_scenes.txt", out_path="./data/teacher_
     with open(out_path, "wb") as f:
         
         for s in tqdm(scenes):
-            desc = label_scene(s)
+            desc = label_scene(s, tokenizer=tokenizer, model=model)
             record = {"scene": s, "descriptor": desc}
             f.write(orjson.dumps(record))
             f.write(b"\n")
 
 if __name__ == "__main__":
-    main()
+    # Load teacher model
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, use_fast=True)
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_ID,
+        device_map="auto",
+        dtype=torch.float16
+    )
+    model.eval()
+    main(tokenizer=tokenizer, model=model)

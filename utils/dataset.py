@@ -1,9 +1,6 @@
 import numpy as np
-import torch
 from torch.utils.data import Dataset
-from utils.music_descriptor import MusicDescriptor
 from utils.music_descriptor import read_music_descriptor_from_json
-import json
 import tqdm
 
 class MusicDataset(Dataset):
@@ -51,7 +48,7 @@ if __name__ == "__main__":
     import os
     # Add parent directory to Python path to import utils
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from models.clap import CLAPModel
+    from models.CLAPModel import CLAPModel
 
 
     dataset = MusicDataset('data/teacher_dataset.jsonl')
