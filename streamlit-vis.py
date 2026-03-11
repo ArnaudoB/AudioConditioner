@@ -1,6 +1,5 @@
 import streamlit as st
 import torch
-import numpy as np
 from models.AudioConditioner import AudioConditioner
 from models.BLIPModel import BLIPModel
 from models.CLAPModel import CLAPModel

@@ -26,3 +26,5 @@ librosa
 bitsandbytes>=0.46.1
 wandb
 streamlit
+
+opencv-python>=4.5.0
