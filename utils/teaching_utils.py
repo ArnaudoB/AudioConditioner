@@ -41,4 +41,3 @@ PRODUCTION_STYLE_LIST = ["cinematic","orchestral","ambient","lofi","electronic",
 DYNAMICS_PROFILE_LIST = ["gradual crescendo","constant intensity","sudden impact near end","soft throughout","build and release"]
 KEY_MODE_LIST = ["major", "minor", "ambiguous"]
 TEMPO_RANGE = (50, 180)
-DURATION_RANGE = (10,40)

@@ -10,7 +10,7 @@ from utils.teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_L
 
 ATTRIBUTES_THAT_ARE_LISTS = ["mood", "instrumentation", "production_style"]
 CLASSIFICATION_ATTRIBUTES = ["mood", "key_mode", "instrumentation", "rhythm_style", "structure", "production_style", "dynamics_profile"]
-REGRESSION_ATTRIBUTES = ["energy", "valence", "tempo", "harmonic_tension", "texture_density", "duration"]
+REGRESSION_ATTRIBUTES = ["energy", "valence", "tempo", "harmonic_tension", "texture_density"]
 
 class MusicDescriptor:
     """
