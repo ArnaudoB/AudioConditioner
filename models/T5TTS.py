@@ -15,9 +15,9 @@ class T5TTS(torch.nn.Module):
 
     def __init__(
         self,
-        model: str = "F5TTS_v1_Base",
         ref_audio: str,
         ref_text: str,
+        model: str = "F5TTS_v1_Base",
         device: Optional[str] = None,
         hf_cache_dir: Optional[str] = "/Data/audiocond-models",
     ):
@@ -36,18 +36,24 @@ class T5TTS(torch.nn.Module):
     def forward(
         self,
         prompt: str,
-        reference_audio_path: str,
-        reference_text: str,
+        reference_audio_path: Optional[str] = None,
+        reference_text: Optional[str] = None,
         **kwargs: Any,
     ) -> Tuple[torch.Tensor, int]:
         """Generate speech from text, optionally using a custom reference voice."""
         if not isinstance(prompt, str) or not prompt.strip():
             raise ValueError("prompt must be a non-empty string")
 
+        ref_audio = reference_audio_path if reference_audio_path is not None else self.ref_audio
+        ref_text = reference_text if reference_text is not None else self.ref_text
+
+        if not ref_audio or not ref_text:
+            raise ValueError("reference audio and reference text must be provided")
+
 
         wav, sample_rate, _ = self.engine.infer(
-            ref_file=reference_audio_path,
-            ref_text=reference_text,
+            ref_file=ref_audio,
+            ref_text=ref_text,
             gen_text=prompt.strip(),
             **kwargs,
         )
