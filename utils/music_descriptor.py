@@ -354,7 +354,11 @@ class MusicDescriptor:
 def read_music_descriptor_from_json(json_str: str) -> tuple[str, MusicDescriptor]:
     data = json.loads(json_str)
     descriptor = data.get("descriptor", {})
+    if descriptor == {}:
+        descriptor = data.get("description", {})
     scene = data.get("scene", "unknown_scene")
+    if scene == "unknown_scene":
+        scene = data.get("scene_text", "unknown_scene")
     descriptor["tempo"] = descriptor["tempo_bpm"] 
     descriptor.pop("tempo_bpm", None)
     descriptor.pop("duration_s", None)

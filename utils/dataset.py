@@ -10,9 +10,13 @@ class MusicDataset(Dataset):
         scenes = []
         with open(path_to_json, 'r') as f:
             for line in tqdm.tqdm(f, desc="Loading dataset"):
-                scene, descriptor = read_music_descriptor_from_json(line)
-                data_list.append((descriptor))
-                scenes.append(scene)
+                try:
+                    scene, descriptor = read_music_descriptor_from_json(line)
+                    data_list.append((descriptor))
+                    scenes.append(scene)
+                except Exception as e:
+                    print(f"Error occurred while processing line: {line}")
+                    print(f"Error: {e}")
         return scenes, data_list
 
     def __init__(self, path_to_json: str):
