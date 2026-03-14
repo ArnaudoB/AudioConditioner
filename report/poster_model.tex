@@ -1,66 +1,72 @@
 \documentclass[25pt, a0paper, portrait]{tikzposter}
+
+% Encodage et typographie
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage[french,english]{babel}
 \usepackage{lmodern}
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{amssymb}
+\usepackage{amsmath, amssymb, amsfonts, dsfont}
 \usepackage{graphicx}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,calc}
 
+% 1. Définition des couleurs officielles (extraites de polytechnique.sty)
 \definecolor{bleu303}{RGB}{0,62,92}
-\definecolor{rouge485}{RGB}{213,43,30}
 \definecolor{bleu315}{RGB}{0,104,128}
+\definecolor{rouge485}{RGB}{213,43,30}
+\definecolor{bleu303pale}{RGB}{204,216,222} % Approximation de bleu303!20!white
 
-
-\title{
-    \parbox{\linewidth}{
-        \begin{minipage}{0.2\linewidth}
-            \centering
-            \colorbox{white}{\includegraphics[height=3.5cm]{polytechnique-logohori.pdf}}
-        \end{minipage}%
-        \begin{minipage}{0.6\linewidth}
-            \centering
-            \textbf{AudioConditioner}\\[0.2em] \Large Models \& Training
-        \end{minipage}%
-        \begin{minipage}{0.2\linewidth}
-            \centering
-            \colorbox{white}{\includegraphics[height=3.8cm]{polytechnique-armes.pdf}}
-        \end{minipage}
-    }
+% 2. Création d'un style de couleur personnalisé pour tikzposter
+\definecolorstyle{PolyColors}{
+    \definecolor{colorOne}{named}{bleu303}
+    \definecolor{colorTwo}{named}{bleu315}
+    \definecolor{colorThree}{named}{rouge485}
+}{
+    % Arrière-plan (fond clair pour la lisibilité)
+    \colorlet{backgroundcolor}{bleu303pale!30!white}
+    \colorlet{framecolor}{bleu303}
+    %
+    % En-tête (Titre)
+    \colorlet{titlebgcolor}{bleu303}
+    \colorlet{titlefgcolor}{white}
+    %
+    % Blocs principaux
+    \colorlet{blocktitlebgcolor}{bleu303}
+    \colorlet{blocktitlefgcolor}{white}
+    \colorlet{blockbodybgcolor}{white}
+    \colorlet{blockbodyfgcolor}{black}
+    %
+    % Sous-blocs (Inner blocks)
+    \colorlet{innerblocktitlebgcolor}{bleu315}
+    \colorlet{innerblocktitlefgcolor}{white}
+    \colorlet{innerblockbodybgcolor}{bleu315!10!white}
+    \colorlet{innerblockbodyfgcolor}{black}
+    %
+    % Notes (Post-its)
+    \colorlet{notefgcolor}{black}
+    \colorlet{notebgcolor}{rouge485!20!white}
+    \colorlet{notefrcolor}{rouge485}
 }
-\author{}
+
+% 3. Application du thème Desert combiné avec nos couleurs
+\usetheme{Desert}
+\usecolorstyle{PolyColors}
+
+% 4. Informations du document
+\title{\parbox{\linewidth}{\centering \textbf{AudioConditioner}\\[0.3em] \Large Models \& Training}}
+\author{Keyvan Attarian \& Baptiste Arnaudo}
 \institute{CSC\_52002\_EP - Multimodal generative AI}
 
-\usetheme{Default}
-\useblockstyle{Minimal}
-\colorlet{backgroundcolor}{white}
-\colorlet{titlebgcolor}{bleu303}
-\colorlet{titlefgcolor}{white}
-\colorlet{blocktitlebgcolor}{white}
-\colorlet{blocktitlefgcolor}{rouge485}
-\colorlet{blockbodybgcolor}{white}
-\colorlet{blockbodyfgcolor}{black}
 
 \begin{document}
 
 \maketitle
-
-\node[fill=bleu303, text=white, minimum width=\paperwidth, minimum height=2.5cm, anchor=south] at (current page.south) {
-    \begin{minipage}{0.9\textwidth}
-        \bfseries\small 
-        Keyvan Attarian \& Baptiste Arnaudo \hfill Ecole polytechnique, X23
-    \end{minipage}
-};
 
 \begin{columns}
 
 \column{0.5}
 
 \block{\MakeUppercase{Introduction \& The Descriptor Model}}{
-    \vspace{-1cm}
-    \includegraphics[width=0.6\linewidth]{polytechnique-filetlongrouge.pdf}\\[0.5cm]
     The \textbf{Audio\-Conditioner} is a high-level multimodal model that bridges the gap between visual/textual semantics and music generation utilizing \textbf{BLIP} for image captioning and the \textbf{CLAP} text encoder for semantic embeddings.
     \vspace{0.5cm}
     
@@ -71,9 +77,7 @@
 }
 
 \block{\MakeUppercase{The MusicDescriptor Schema}}{
-    \vspace{-1cm}
-    \includegraphics[width=0.6\linewidth]{polytechnique-filetlongrouge.pdf}\\[0.5cm]
-    {\color{bleu315}\LARGE\bfseries\sffamily Classification Attributes}
+    {\color{bleu315}\Large\scshape Classification Attributes}
     \begin{itemize}
         \item[\color{bleu303}\textbullet] \textbf{Mood} \textit{($\rightarrow$ Multi-Label List)}: Emotional states (e.g., dark, epic, melancholic).
         \item[\color{bleu303}\textbullet] \textbf{Key/Mode} \textit{($\rightarrow$ Single-Label)}: The musical scale used (e.g., major, minor).
@@ -95,8 +99,6 @@
 }
 
 \block{\MakeUppercase{Framework Architecture}}{
-    \vspace{-1cm}
-    \includegraphics[width=0.6\linewidth]{polytechnique-filetlongrouge.pdf}\\[0.5cm]
     \begin{center}
     \begin{tikzpicture}[
         node distance=2cm and 2cm,
@@ -130,8 +132,6 @@
 \column{0.5}
 
 \block{\MakeUppercase{Phase 1: Generative LLM Distillation}}{
-    \vspace{-1cm}
-    \includegraphics[width=0.6\linewidth]{polytechnique-filetlongrouge.pdf}\\[0.5cm]
     Training the \textbf{Descriptor Model} required a large parallel corpus mapping natural language to the strict \texttt{Music\-Descriptor} format. We built this automatically through \textbf{Prompt Mixing} and \textbf{Teacher LLM Distillation}:
     \begin{itemize}
         \item \textbf{Data Generation:} Instead of using an LLM to write scenes, we procedurally generated millions of short scene combinations by randomly mixing predefined \textit{characters}, \textit{characteristics}, \textit{settings}, and \textit{emotional events} (e.g., \textit{"A lonely astronaut under a burning sunset discovers an unexpected opportunity."}).
@@ -147,8 +147,6 @@
 }
 
 \block{\MakeUppercase{Phase 2: Contextual Novel Fine-Tuning}}{
-    \vspace{-1cm}
-    \includegraphics[width=0.6\linewidth]{polytechnique-filetlongrouge.pdf}\\[0.5cm]
     To support narrative audiobook generation (\textbf{ReadMusic}), we fine-tuned the model to handle longer contextual evolution:
     \begin{enumerate}
         \item \textbf{Novel Chunking:} Public domain novels data were split into consecutive paragraphs (up to 80 words max).
@@ -158,8 +156,6 @@
 }
 
 \block{\MakeUppercase{Training Pipeline Overview}}{
-    \vspace{-1cm}
-    \includegraphics[width=0.6\linewidth]{polytechnique-filetlongrouge.pdf}\\[0.5cm]
     \begin{center}
     \begin{tikzpicture}[
         node distance=1.5cm and 1.5cm,
