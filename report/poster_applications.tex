@@ -1,0 +1,173 @@
+\documentclass[25pt, a0paper, portrait]{tikzposter}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,calc}
+
+\definecolor{bleu303}{RGB}{0,62,92}
+\definecolor{rouge485}{RGB}{213,43,30}
+\definecolor{bleu315}{RGB}{0,104,128}
+
+\title{
+    \parbox{\linewidth}{
+        \begin{minipage}{0.2\linewidth}
+            \centering
+            \colorbox{white}{\includegraphics[height=3.5cm]{polytechnique-logohori.pdf}}
+        \end{minipage}%
+        \begin{minipage}{0.6\linewidth}
+            \centering
+            \textbf{AudioConditioner}\\[0.2em] \Large Applications
+        \end{minipage}%
+        \begin{minipage}{0.2\linewidth}
+            \centering
+            \colorbox{white}{\includegraphics[height=3.8cm]{polytechnique-armes.pdf}}
+        \end{minipage}
+    }
+}
+\author{}
+\institute{CSC\_52002\_EP - Multimodal generative AI}
+
+\usetheme{Default}
+\useblockstyle{Minimal}
+\colorlet{backgroundcolor}{white}
+\colorlet{titlebgcolor}{bleu303}
+\colorlet{titlefgcolor}{white}
+\colorlet{blocktitlebgcolor}{white}
+\colorlet{blocktitlefgcolor}{rouge485}
+\colorlet{blockbodybgcolor}{white}
+\colorlet{blockbodyfgcolor}{black}
+
+\begin{document}
+
+\maketitle
+
+\node[fill=bleu303, text=white, minimum width=\paperwidth, minimum height=2.5cm, anchor=south] at (current page.south) {
+    \begin{minipage}{0.9\textwidth}
+        \bfseries\small 
+        Keyvan Attarian \& Baptiste Arnaudo \hfill Ecole polytechnique, X23
+    \end{minipage}
+};
+
+\begin{columns}
+
+\column{0.5}
+
+\block{\MakeUppercase{Application I: Image to Ambient Music}}{
+    \vspace{-1cm}
+    \includegraphics[width=0.6\linewidth]{polytechnique-filetlongrouge.pdf}\\[0.5cm]
+    One direct and powerful application of the \textbf{Audio\-Conditioner} framework is generating ambient music and atmospheres based solely on visual inputs. By passing an image into our pipeline:
+    \vspace{0.5cm}
+    
+    \begin{itemize}
+        \item The \textbf{BLIP Model} automatically captions the image's scene, extracting emotional elements, colors, objects, and implicit narrative.
+        \item This scene description drives the \textbf{Audio\-Conditioner} pipeline (through the \textbf{CLAP Descriptor} and \textbf{Stable Audio}), outputting high-fidelity audio that perfectly encapsulates the mood of the image.
+        \item The audio candidates are re-ranked using the \textbf{CLAP Cosine Similarity Filter} to ensure the highest alignment with the initial visual.
+    \end{itemize}
+    \vspace{0.5cm}
+    This enables seamless soundtrack generation for static artwork, game environments, or visual media.
+}
+
+\block{\MakeUppercase{Application II: Text Reading with Adaptive Music}}{
+    \vspace{-1cm}
+    \includegraphics[width=0.6\linewidth]{polytechnique-filetlongrouge.pdf}\\[0.5cm]
+    The \textbf{ReadMusic} module merges Speech Synthesis with adaptive background music scoring, turning textual narratives into fully immersive audiobooks.
+    
+    \begin{center}
+    \begin{tikzpicture}[
+        node distance=1.5cm and 1.5cm,
+        box/.style={rectangle, draw=black, thick, fill=blue!10, text width=6cm, align=center, rounded corners, minimum height=1.5cm},
+        arrow/.style={->, thick, >=stealth}
+    ]
+        \node[box, fill=green!10] (input) {Input Narrative Text};
+        \node[box] (chunking) [below=1.5cm of input] {Text Chunking \\ (Max 80 words/chunk)};
+        
+        \node[box, fill=purple!10] (tts) [below left=2cm and 0.5cm of chunking] {\textbf{T5-TTS Synthesis} \\ Generate Speech \\ resample to 48kHz};
+        \node[box, fill=orange!10] (ac) [below right=2cm and 0.5cm of chunking] {\textbf{Audio\-Conditioner} \\ Generate Music \\ Match Duration};
+        
+        \node[box] (mixer) [below=5cm of chunking] {Length Matching \\ \& Dual Mixer ($Gains$)};
+        \node[box, fill=yellow!10] (fade) [below=1.5cm of mixer] {Cross-fade Appending};
+        \node[box, fill=green!10] (output) [below=1.5cm of fade] {Merged Audio Output};
+
+        \draw[arrow] (input) -- (chunking);
+        \draw[arrow] (chunking.south) -- ++(0,-0.8) -| node[above, pos=0.2, font=\small] {Parallel} (tts.north);
+        \draw[arrow] (chunking.south) -- ++(0,-0.8) -| node[above, pos=0.2, font=\small] {Pipeline} (ac.north);
+        \draw[arrow] (tts.south) |- (mixer.west);
+        \draw[arrow] (ac.south) |- (mixer.east);
+        \draw[arrow] (mixer) -- (fade);
+        \draw[arrow] (fade) -- (output);
+    \end{tikzpicture}
+    \end{center}
+    
+    The text is robustly split using natural pauses (punctuation, newlines). For each chunk --- mandated due to the strict \textbf{47-second generation maximum} of the under-the-hood Stable Audio model —, the script runs the T5 text-to-speech engine concurrently with our Music Generation model. Finally, speech and music arrays are zero-padded to match lengths, multiplied by their specific gains, and blended with dynamic crossfades to avoid clipping artifacts.
+}
+
+\column{0.5}
+
+\block{\MakeUppercase{Application III: Video Generation \& Orchestration}}{
+    \vspace{-1cm}
+    \includegraphics[width=0.6\linewidth]{polytechnique-filetlongrouge.pdf}\\[0.5cm]
+    Taking the visual modality further, the \texttt{video\_sound.py} application creates animated cinematic clips with a tightly synchronized and responsive musical score from a single still image.
+    \vspace{1cm}
+    
+    \textbf{Parallel Execution Pathway:}
+    \vspace{0.5cm}
+    \begin{enumerate}
+        \item \textbf{Image Animation:} The input image is parsed through the \textbf{Img2VidSD} Model (Stable Video Diffusion pipeline). This produces a smooth, non-static silent video sequence.
+        \item \textbf{Image Orchestration:} Simultaneously, the image goes directly into the \textbf{Audio\-Conditioner} model to extract visual semantics and produce a matching audio waveform.
+        \item \textbf{Multimodal Merging:} We integrate \textbf{FFmpeg} through subprocesses to automatically compile the generated silent video (\texttt{.mp4}) and the generated audio (\texttt{.wav}), multiplexing them into a single presentation-ready file.
+    \end{enumerate}
+    
+    \begin{center}
+    \begin{tikzpicture}[
+        node distance=2cm,
+        box/.style={rectangle, draw=black, thick, fill=blue!10, text width=6cm, align=center, rounded corners, minimum height=1.5cm},
+        imgbox/.style={rectangle, draw=black, thick, fill=gray!20, minimum width=4cm, minimum height=3cm, align=center, font=\itshape},
+        arrow/.style={->, thick, >=stealth}
+    ]
+        
+        \node[box, fill=green!10] (img) {\textbf{Source Image}};
+        
+        \node[box, fill=teal!10] (vid) [below left=1cm and 0.5cm of img] {Stable Video Diffusion \\ (Img2VidSD)};
+        \node[box, fill=orange!10] (aud) [below right=1cm and 0.5cm of img] {AudioConditioner};
+        
+        \node[box] (vf) [below=1.5cm of vid] {Silent output.mp4};
+        \node[box] (af) [below=1.5cm of aud] {Sound output.wav};
+        
+        \node[box, fill=red!10] (ffmpeg) [below right=1cm and -0.5cm of vf] {FFmpeg \\ Multiplexing};
+        
+        \node[box, fill=green!10] (final) [below=1.5cm of ffmpeg] {Final Synced Video};
+        
+        \draw[arrow] (img) -- (vid);
+        \draw[arrow] (img) -- (aud);
+        \draw[arrow] (vid) -- (vf);
+        \draw[arrow] (aud) -- (af);
+        \draw[arrow] (vf) |- (ffmpeg);
+        \draw[arrow] (af) |- (ffmpeg);
+        \draw[arrow] (ffmpeg) -- (final);
+        
+    \end{tikzpicture}
+    \end{center}
+    
+    These applications showcase the great versatility of \textbf{Audio\-Conditioner}, positioning it as a strong foundation for automated scoring, procedural art generation, and immersive multimodal storytelling.
+}
+
+\block{\MakeUppercase{If We Had More Time: PPO Fine-Tuning}}{
+    \vspace{-1cm}
+    \includegraphics[width=0.6\linewidth]{polytechnique-filetlongrouge.pdf}\\[0.5cm]
+    Given more time and compute budget, we would have fine-tuned our model using \textbf{Proximal Policy Optimization (PPO)}. By using the CLAP similarity score (between the generated audio and the text prompt) as a reward signal, the model could strictly optimize itself to directly maximize alignment instead of just distilling a Teacher LLM.
+    \vspace{0.5cm}
+    
+    \begin{itemize}
+        \item[\color{rouge485}\textbullet] \textbf{The Bottleneck:} In RL algorithms like PPO, the agent needs to continually generate outputs (rollouts) to explore the environment and receive rewards. 
+        \item[\color{rouge485}\textbullet] \textbf{Order of Magnitude:} A single audio generation step with \textbf{Stable Audio} takes approximately \textbf{1 minute} to complete.
+        \item[\color{bleu303}\textbullet] \textbf{Conclusion:} Gathering enough generation trajectories to meaningfully update the network via PPO would thus require \textbf{weeks of continuous computing time}, making it unfeasible within the scope of this project.
+    \end{itemize}
+}
+
+\end{columns}
+\end{document}
