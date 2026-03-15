@@ -11,6 +11,8 @@ from utils.loss import MSEMusicDescriptorLoss, AdaptedMusicDescriptorLoss
 import wandb
 from datetime import datetime
 
+from checkpoint_paths import SCENE_CHECKPOINT
+
 def train(model, device, train_loader, val_loader, num_epochs, optimizer, criterion):
     wandb.init(project="audio-conditioner", name=f"audio-conditioner-run-{datetime.now().strftime('%Y%m%d_%H%M%S')}", config={
         "num_epochs": num_epochs,
@@ -52,7 +54,7 @@ def train(model, device, train_loader, val_loader, num_epochs, optimizer, criter
         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}")
         print(f"Validation Loss: {avg_val_loss:.4f}")
         
-        torch.save(model.state_dict(), "saves/model_checkpoint.pt")
+        torch.save(model.state_dict(), SCENE_CHECKPOINT)
         print("Model saved successfully!")
     
     wandb.finish()
@@ -62,7 +64,7 @@ def main(lr=0.001, num_epochs=10, batch_size=32):
     print(f"Using device: {device}")
 
     # Load dataset
-    dataset = MusicDataset('data/teacher_dataset_chunks.jsonl')
+    dataset = MusicDataset('data/teacher_dataset.jsonl')
     embedding_model = CLAPModel()
     embedding_dataset = EmbeddingDataset(dataset, embedding_model, device=device)
 
@@ -78,7 +80,7 @@ def main(lr=0.001, num_epochs=10, batch_size=32):
 
     # Initialize model, criterion and optimizer
     model = TwoDeepDescriptor(clap_dim=512, backbone_dim=256).to(device)
-    #loaded_state_dict = torch.load("saves/model_checkpoint.pt", map_location=device)
+    #loaded_state_dict = torch.load(SCENE_CHECKPOINT, map_location=device)
     #model.load_state_dict(loaded_state_dict)
     criterion = AdaptedMusicDescriptorLoss() #Weights can be added
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -87,4 +89,4 @@ def main(lr=0.001, num_epochs=10, batch_size=32):
     train(model, device, train_loader, val_loader, num_epochs=num_epochs, optimizer=optimizer, criterion=criterion)
 
 if __name__ == "__main__":
-    main(lr=0.0005, num_epochs=15, batch_size=64)
+    main(lr=0.0005, num_epochs=50, batch_size=64)

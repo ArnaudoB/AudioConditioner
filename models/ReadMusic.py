@@ -9,6 +9,10 @@ import torch.nn as nn
 from scipy.io.wavfile import write as wav_write
 
 
+ROOT_DIR = Path(__file__).resolve().parents[1]
+CHUNKS_CHECKPOINT = ROOT_DIR / "saves" / "model_chunks.pt"
+
+
 class ReadMusic(nn.Module):
     """Compose speech synthesis (T5-TTS) with background music (AudioConditioner)."""
 
@@ -291,7 +295,7 @@ if __name__ == "__main__":
     print("Loading real models (this can take time)...")
     clap_model = CLAPModel()
     music_prompter = TwoDeepDescriptor(clap_dim=512, backbone_dim=256, top_p=0.1)
-    music_prompter.load_state_dict(torch.load("saves/model_checkpoint.pt", map_location=torch.device("cpu")))
+    music_prompter.load_state_dict(torch.load(CHUNKS_CHECKPOINT, map_location=torch.device("cpu")))
     stable_audio = StableAudioModel()
     blip_model = BLIPModel()
     audio_conditioner = AudioConditioner(stable_audio, music_prompter, blip_model, clap_model)

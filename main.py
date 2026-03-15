@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from checkpoint_paths import SCENE_CHECKPOINT
 from models.AudioConditioner import AudioConditioner
 from models.BLIPModel import BLIPModel
 from models.CLAPModel import CLAPModel
@@ -11,7 +12,7 @@ import os
 def load_models():
     clap_model = CLAPModel()
     music_prompter = TwoDeepDescriptor(clap_dim=512, backbone_dim=256,top_p=0.1)
-    music_prompter.load_state_dict(torch.load("saves/model_checkpoint.pt", map_location=torch.device('cpu')))
+    music_prompter.load_state_dict(torch.load(SCENE_CHECKPOINT, map_location=torch.device('cpu')))
     conditioner = StableAudioModel()
     blip_model = BLIPModel()
     return clap_model, music_prompter, conditioner, blip_model

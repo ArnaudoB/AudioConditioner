@@ -8,6 +8,7 @@ import torch
 from PIL import Image
 from diffusers.utils.loading_utils import load_image
 
+from checkpoint_paths import SCENE_CHECKPOINT
 from models.AudioConditioner import AudioConditioner
 from models.BLIPModel import BLIPModel
 from models.CLAPModel import CLAPModel
@@ -17,7 +18,7 @@ from models.StableAudioModel import StableAudioModel
 
 
 ROOT_DIR = Path(__file__).resolve().parent
-DEFAULT_CHECKPOINT = ROOT_DIR / "saves" / "model_checkpoint.pt"
+DEFAULT_CHECKPOINT = SCENE_CHECKPOINT
 DEFAULT_OUTPUT_DIR = ROOT_DIR / "sounds"
 
 
@@ -61,8 +62,25 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--video-steps",
         type=int,
-        default=25,
-        help="Inference steps for Stable Video Diffusion.",
+        default=50,
+        help="Inference steps for CogVideoX image-to-video generation.",
+    )
+    parser.add_argument(
+        "--video-fps",
+        type=int,
+        default=12,
+        help="Output video fps for the generated silent video.",
+    )
+    parser.add_argument(
+        "--video-seed",
+        type=int,
+        default=None,
+        help="Optional seed for deterministic video generation. Omit for random seed.",
+    )
+    parser.add_argument(
+        "--loop-video",
+        action="store_true",
+        help="Force seamless loop motion (can increase artifacts on characters).",
     )
     parser.add_argument(
         "--num-waveforms",
@@ -73,7 +91,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def load_models(checkpoint_path: Path):
+def load_models(checkpoint_path: Path, video_fps: int, video_seed: int | None, loop_video: bool):
     clap_model = CLAPModel()
     music_prompter = TwoDeepDescriptor(clap_dim=512, backbone_dim=256, top_p=0.1)
     music_prompter.load_state_dict(torch.load(checkpoint_path, map_location=torch.device("cpu")))
@@ -81,9 +99,12 @@ def load_models(checkpoint_path: Path):
     blip_model = BLIPModel()
     img2vid_model = CogVideoX(
         prompt=(
-            "A cinematic photorealistic shot with smooth natural motion, "
-            "high detail, stable camera, seamless looping animation."
-        )
+            "A cinematic photorealistic shot with stable camera and coherent body motion, "
+            "high detail, physically plausible movement, no abrupt action."
+        ),
+        enable_loop_prompt=loop_video,
+        fps=video_fps,
+        seed=video_seed,
     )
     audio_conditioner = AudioConditioner(stable_audio_model, music_prompter, blip_model, clap_model)
     return audio_conditioner, img2vid_model, stable_audio_model
@@ -166,13 +187,21 @@ def generate_video_with_music(
     audio_inference_steps: int,
     video_inference_steps: int,
     num_waveforms_per_prompt: int,
+    video_fps: int,
+    video_seed: int | None,
+    loop_video: bool,
 ) -> GenerationResult:
     if not image_path.exists():
         raise FileNotFoundError(f"Image not found: {image_path}")
     if not checkpoint_path.exists():
         raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
 
-    audio_conditioner, img2vid_model, stable_audio_model = load_models(checkpoint_path)
+    audio_conditioner, img2vid_model, stable_audio_model = load_models(
+        checkpoint_path,
+        video_fps=video_fps,
+        video_seed=video_seed,
+        loop_video=loop_video,
+    )
     image = load_image(str(image_path))
 
     return generate_video_with_music_from_image(
@@ -199,6 +228,9 @@ def run_cli() -> None:
         audio_inference_steps=args.audio_steps,
         video_inference_steps=args.video_steps,
         num_waveforms_per_prompt=args.num_waveforms,
+        video_fps=args.video_fps,
+        video_seed=args.video_seed,
+        loop_video=args.loop_video,
     )
 
     print("Generated prompt:", result.prompt)
@@ -207,3 +239,6 @@ def run_cli() -> None:
     print("Silent video:", result.silent_video_path)
     print("Audio:", result.audio_path)
     print("Final video:", result.final_video_path)
+
+if __name__ == "__main__":
+    run_cli()
