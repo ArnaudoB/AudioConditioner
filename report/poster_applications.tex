@@ -77,7 +77,7 @@
 \useblockstyle{TransparentSlide}
 
 % 4. Informations du document
-\title{\parbox{\linewidth}{\centering \textbf{AudioConditioner}\\[0.3em] \Large Applications}}
+\title{\parbox{\linewidth}{\centering \textbf{AudioConditioner}\\[0.3em] \Large Results \& Applications}}
 \author{Keyvan Attarian \& Baptiste Arnaudo}
 \institute{CSC\_52002\_EP - Multimodal generative AI}
 
@@ -123,8 +123,8 @@
         \node[box, fill=green!10] (output) [below=1.5cm of fade] {Merged Audio Output};
 
         \draw[arrow] (input) -- (chunking);
-        \draw[arrow] (chunking.south) -- ++(0,-0.8) -| node[above, pos=0.2, font=\small] {Parallel} (tts.north);
-        \draw[arrow] (chunking.south) -- ++(0,-0.8) -| node[above, pos=0.2, font=\small] {Pipeline} (ac.north);
+        \draw[arrow] (chunking.south) -- ++(0,-0.8) -| (tts.north);
+        \draw[arrow] (chunking.south) -- ++(0,-0.8) -| (ac.north);
         \draw[arrow] (tts.south) |- (mixer.west);
         \draw[arrow] (ac.south) |- (mixer.east);
         \draw[arrow] (mixer) -- (fade);
@@ -132,7 +132,7 @@
     \end{tikzpicture}
     \end{center}
     
-    The text is robustly split using natural pauses (punctuation, newlines). For each chunk --- mandated due to the strict \textbf{47-second generation maximum} of the under-the-hood Stable Audio model —, the script runs the T5 text-to-speech engine concurrently with our Music Generation model. Finally, speech and music arrays are zero-padded to match lengths, multiplied by their specific gains, and blended with dynamic crossfades to avoid clipping artifacts.
+    The text is robustly split using natural pauses (punctuation, newlines). For each chunk (mandated due to the strict \textbf{47-second generation maximum} of the under-the-hood Stable Audio model), the script runs the T5 text-to-speech engine concurrently with our Music Generation model. Finally, speech and music arrays are zero-padded to match lengths, multiplied by their specific gains, and blended with dynamic crossfades to avoid clipping artifacts.
 }
 
 \column{0.5}
@@ -144,7 +144,7 @@
     \textbf{Parallel Execution Pathway:}
     \vspace{0.5cm}
     \begin{enumerate}
-        \item \textbf{Image Animation:} The input image is parsed through the \textbf{Img2VidSD} Model (Stable Video Diffusion pipeline). This produces a smooth, non-static silent video sequence.
+        \item \textbf{Image Animation:} The input image is parsed through the \textbf{CogVideoX} Model. As we strictly utilized an \textit{open-weight model} for this task, the resulting video quality remains relatively limited but serves as a functional proof-of-concept for the pipeline.
         \item \textbf{Image Orchestration:} Simultaneously, the image goes directly into the \textbf{Audio\-Conditioner} model to extract visual semantics and produce a matching audio waveform.
         \item \textbf{Multimodal Merging:} We integrate \textbf{FFmpeg} through subprocesses to automatically compile the generated silent video (\texttt{.mp4}) and the generated audio (\texttt{.wav}), multiplexing them into a single presentation-ready file.
     \end{enumerate}
@@ -159,28 +159,30 @@
         
         \node[box, fill=green!10] (img) {\textbf{Source Image}};
         
-        \node[box, fill=teal!10] (vid) [below left=1cm and 0.5cm of img] {Stable Video Diffusion \\ (Img2VidSD)};
-        \node[box, fill=orange!10] (aud) [below right=1cm and 0.5cm of img] {AudioConditioner};
+        \node[box, fill=teal!10] (vid) [below left=2cm and 1cm of img] {CogVideoX};
+        \node[box, fill=orange!10] (aud) [below right=2cm and 1cm of img] {Audio Conditioner};
         
         \node[box] (vf) [below=1.5cm of vid] {Silent output.mp4};
         \node[box] (af) [below=1.5cm of aud] {Sound output.wav};
         
-        \node[box, fill=red!10] (ffmpeg) [below right=1cm and -0.5cm of vf] {FFmpeg \\ Multiplexing};
+        \node[box, fill=red!10] (ffmpeg) [below=9cm of img] {FFmpeg \\ Multiplexing};
         
         \node[box, fill=green!10] (final) [below=1.5cm of ffmpeg] {Final Synced Video};
         
-        \draw[arrow] (img) -- (vid);
-        \draw[arrow] (img) -- (aud);
+        \draw[arrow] (img.south) -- ++(0,-0.8) -| (vid.north);
+        \draw[arrow] (img.south)  -- ++(0,-0.8) -| (aud.north);
         \draw[arrow] (vid) -- (vf);
         \draw[arrow] (aud) -- (af);
-        \draw[arrow] (vf) |- (ffmpeg);
-        \draw[arrow] (af) |- (ffmpeg);
+        \draw[arrow] (vf.south) |- (ffmpeg.west);
+        \draw[arrow] (af.south) |- (ffmpeg.east);
         \draw[arrow] (ffmpeg) -- (final);
         
     \end{tikzpicture}
     \end{center}
     
     These applications showcase the great versatility of \textbf{Audio\-Conditioner}, positioning it as a strong foundation for automated scoring, procedural art generation, and immersive multimodal storytelling.
+
+    However, due to the limitation to open-weight models, the quality of the generated video is not as good as the quality of the generated audio. Many artifacts are often visible in the generated video.
 }
 
 \block{\MakeUppercase{If We Had More Time}}{
@@ -191,6 +193,16 @@
         \item[\color{rouge485}\textbullet] \textbf{The Bottleneck:} In RL algorithms like PPO, the agent needs to continually generate outputs (rollouts) to explore the environment and receive rewards. 
         \item[\color{rouge485}\textbullet] \textbf{Order of Magnitude:} A single audio generation step with \textbf{Stable Audio} takes approximately \textbf{1 minute} to complete.
         \item[\color{bleu303}\textbullet] \textbf{Conclusion:} Gathering enough generation trajectories to meaningfully update the network via PPO would thus require \textbf{weeks of continuous computing time}, making it unfeasible within the scope of this project.
+    \end{itemize}
+}
+
+\block{\MakeUppercase{References: Models Used}}{
+    \begin{itemize}
+        \item[\color{bleu303}\textbullet] \textbf{BLIP (Bootstrapping Language-Image Pre-training):} Visual scene semantic extraction and captioning.
+        \item[\color{bleu303}\textbullet] \textbf{CLAP (Contrastive Language-Audio Pretraining):} Text semantic embeddings and cosine similarity candidate re-ranking.
+        \item[\color{bleu303}\textbullet] \textbf{Stable Audio (Open):} Core diffusion model for structural 47-second music sequence generation.
+        \item[\color{bleu303}\textbullet] \textbf{T5-TTS:} Robust text-to-speech synthesis engine utilized in the ReadMusic narrative pipeline.
+        \item[\color{bleu303}\textbullet] \textbf{CogVideoX:} Advanced transformer-based text-to-video diffusion model for high-consistency visual animation.
     \end{itemize}
 }
 
