@@ -2,17 +2,15 @@
 
 > **Conditioned audio generation and video-to-sound synthesis using deep learning.**
 
-AudioConditioner is a school project exploring conditional audio generation — training neural networks to produce audio guided by structured conditions, and synthesizing sound effects that match video content.
+AudioConditioner is a school project exploring relevant audio generation based on a prompt or an image. The project also features small animation of the input image (if any) as well as reading of the input prompt together with the background music (if asked).
 
 ---
 
 ## ✨ Features
 
-- **Conditional audio generation** — train models that generate audio based on conditioning signals
+- **Conditional audio generation** — train models that generate audio based on a prompt
 - **Video-to-sound synthesis** — automatically generate sound effects synchronized to video input
 - **Interactive Streamlit demos** — explore model outputs through three dedicated web interfaces
-- **Visualization tools** — inspect spectrograms, waveforms, and model internals
-- **Modular architecture** — clean separation between data, models, training, and inference
 
 ---
 
@@ -23,7 +21,6 @@ AudioConditioner/
 ├── main.py                    # Entry point for inference / generation
 ├── train.py                   # Model training script
 ├── video_sound.py             # Video-to-sound synthesis pipeline
-├── checkpoint_paths.py        # Paths to saved model checkpoints
 │
 ├── streamlit-readmusic.py     # 🎼 Demo: listen to generated audio
 ├── streamlit-video-sound.py   # 🎬 Demo: video + generated sound
@@ -71,36 +68,9 @@ pip install -r requirements.txt
 python train.py
 ```
 
-### Running inference / generating audio
-
-```bash
-python main.py
-```
-
-### Video-to-sound synthesis
-
-```bash
-python video_sound.py
-```
-
-### Launching the interactive demos
-
-```bash
-# Listen to and compare generated audio samples
-streamlit run streamlit-readmusic.py
-
-# Explore video + generated sound
-streamlit run streamlit-video-sound.py
-
-# Visualize spectrograms and model outputs
-streamlit run streamlit-vis.py
-```
-
----
-
 ## 🎧 Demo
 
-A sample generated audio file is included in the repository:
+A sample of automatically read story is included in the repository:
 
 ```
 demo_output.wav
@@ -128,10 +98,5 @@ A full written report (LaTeX source) is available in the [`report/`](./report) d
 
 ## 👤 Author
 
-**ArnaudoB** — school project
+**Keyvan Attarian, Baptiste Arnaudo** — school project
 
----
-
-## 📝 License
-
-This project was developed as part of a school curriculum. Please reach out before reusing any part of this work.
