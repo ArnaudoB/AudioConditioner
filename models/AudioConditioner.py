@@ -2,9 +2,6 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 
-# Warning : we may have a problem between the sampling rate of laion vs the sampling rate of stable audio (need resampling maybe)
-
-
 class AudioConditioner(nn.Module):
     """AudioConditioner is a high-level model that integrates multiple components to generate audio based on various inputs. 
     It takes an audio generation model, a descriptor model, a BLIP model for image captioning, and a CLAP model for text and audio embeddings. 

@@ -1,24 +1,18 @@
 import os
-from dataset_generator import extract_json, teacher, label_scene
+from dataset_generator import label_scene
 from tqdm import tqdm
 import orjson
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from teaching_utils import TEACHER_PROMPT, MODEL_ID
 import torch
 
-SHORT_STORIES_PATH = "./data/short_stories"
-OUTPUT_PATH = "./data/chunks"
-MAX_CHUNK_SIZE = 100 # maximum number of words per chunk
-
-def generate_chunks():
-    os.makedirs(OUTPUT_PATH, exist_ok=True)
-    for short_story in os.listdir(SHORT_STORIES_PATH):
-        with open(os.path.join(SHORT_STORIES_PATH, short_story), 'r', encoding='utf-8') as f:
+def generate_chunks(path="./data/short_stories", output_path="./data/chunks", max_chunk_size=100):
+    os.makedirs(output_path, exist_ok=True)
+    for short_story in os.listdir(path):
+        with open(os.path.join(path, short_story), 'r', encoding='utf-8') as f:
             text = f.read()
             words = text.split()
-            chunks = [' '.join(words[i:i+MAX_CHUNK_SIZE]) for i in range(0, len(words), MAX_CHUNK_SIZE)]
+            chunks = [' '.join(words[i:i+max_chunk_size]) for i in range(0, len(words), max_chunk_size)]
             for idx, chunk in enumerate(chunks):
-                with open(os.path.join(OUTPUT_PATH, f"{short_story}_{idx}.txt"), 'w', encoding='utf-8') as out_f:
+                with open(os.path.join(output_path, f"{short_story}_{idx}.txt"), 'w', encoding='utf-8') as out_f:
                     out_f.write(chunk)
 
 
