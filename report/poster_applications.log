@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.13)  15 MAR 2026 16:39
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.3.13)  15 MAR 2026 17:57
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -644,15 +644,17 @@ LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
 )) (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/doublestroke\dsfont.sty
 Package: dsfont 1995/08/01 v0.1 Double stroke roman fonts
+) (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/capt-of\capt-of.sty
+Package: capt-of 2009/12/29 v0.2 standard captions outside of floats
 ) (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibraryarrows.code.tex
 File: tikzlibraryarrows.code.tex 2021/05/15 v3.1.9a (3.1.9a)
 ) (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarypositioning.code.tex
 File: tikzlibrarypositioning.code.tex 2021/05/15 v3.1.9a (3.1.9a)
 )
 
-Package tikzposter Warning: Unknown color palette `GrayOrangeBlue'. on input line 52.
+Package tikzposter Warning: Unknown color palette `GrayOrangeBlue'. on input line 53.
 
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 85.
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 86.
 (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmr.fd
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
@@ -662,20 +664,20 @@ File: l3backend-pdftex.def 2022-10-26 L3 backend support: PDF output (pdfTeX)
 ) (poster_applications.aux)
 \openout1 = `poster_applications.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 85.
-LaTeX Font Info:    ... okay on input line 85.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 86.
+LaTeX Font Info:    ... okay on input line 86.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 86.
+LaTeX Font Info:    ... okay on input line 86.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 86.
+LaTeX Font Info:    ... okay on input line 86.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 86.
+LaTeX Font Info:    ... okay on input line 86.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 86.
+LaTeX Font Info:    ... okay on input line 86.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 86.
+LaTeX Font Info:    ... okay on input line 86.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 86.
+LaTeX Font Info:    ... okay on input line 86.
  (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count338
@@ -732,40 +734,40 @@ File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 <polytechnique-armes.pdf, id=28, 195.20929pt x 257.65259pt>
 File: polytechnique-armes.pdf Graphic file (type pdf)
 <use polytechnique-armes.pdf>
-Package pdftex.def Info: polytechnique-armes.pdf  used on input line 85.
+Package pdftex.def Info: polytechnique-armes.pdf  used on input line 86.
 (pdftex.def)             Requested size: 2871.44481pt x 3794.0169pt.
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 85.
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 86.
 (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 85.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 86.
  (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/lm\omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 85.
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 86.
  (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/lm\omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 85.
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 86.
  (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/lm\omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <17.28> on input line 85.
+(Font)              <17.28> on input line 86.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 85.
+(Font)              <12> on input line 86.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 85.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 85.
+(Font)              <10> on input line 86.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 86.
  (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 85.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 86.
  (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Info: Redefining \degres on input line 85.
-LaTeX Info: Redefining \up on input line 85.
+LaTeX Info: Redefining \degres on input line 86.
+LaTeX Info: Redefining \up on input line 86.
 
 Missing character: There is no . in font nullfont!
 Missing character: There is no 1 in font nullfont!
@@ -773,34 +775,39 @@ Missing character: There is no = in font nullfont!
 Missing character: There is no 1 in font nullfont!
 
 LaTeX Font Warning: Font shape `T1/lmr/bx/sc' undefined
-(Font)              using `T1/lmr/bx/n' instead on input line 88.
+(Font)              using `T1/lmr/bx/n' instead on input line 89.
 
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <61.92> on input line 88.
+(Font)              <61.92> on input line 89.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <43> on input line 88.
+(Font)              <43> on input line 89.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <29.86> on input line 88.
+(Font)              <29.86> on input line 89.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <24.88> on input line 88.
+(Font)              <24.88> on input line 89.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <20.74> on input line 88.
+(Font)              <20.74> on input line 89.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <14.4> on input line 88.
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 104.
+(Font)              <14.4> on input line 89.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 105.
 (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-Overfull \hbox (3.8997pt too wide) in paragraph at lines 136--136
+Overfull \hbox (3.8997pt too wide) in paragraph at lines 137--137
  \T1/lmr/bx/n/29.86 Conditioner 
  []
 
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 186.
+<score_distributions.png, id=33, 867.24pt x 433.62pt>
+File: score_distributions.png Graphic file (type png)
+<use score_distributions.png>
+Package pdftex.def Info: score_distributions.png  used on input line 146.
+(pdftex.def)             Requested size: 645.31508pt x 322.67346pt.
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 146.
 (C:\Users\keyva\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [1
 
-{C:/Users/keyva/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}{C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}{C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc} <./polytechnique-armes.pdf>] (poster_applications.aux)
+{C:/Users/keyva/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}{C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}{C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc} <./polytechnique-armes.pdf> <./score_distributions.png>] (poster_applications.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -811,17 +818,17 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 21118 strings out of 468040
- 454009 string characters out of 5432828
- 921490 words of memory out of 5000000
- 49378 multiletter control sequences out of 15000+600000
- 715555 words of font info for 107 fonts, out of 8000000 for 9000
+ 21147 strings out of 468040
+ 454846 string characters out of 5432828
+ 927006 words of memory out of 5000000
+ 49402 multiletter control sequences out of 15000+600000
+ 715873 words of font info for 108 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 117i,12n,121p,560b,1632s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 117i,12n,121p,560b,1636s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmcsc10.pfb><C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb><C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri12.pfb><C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt12.pfb>
-Output written on poster_applications.pdf (1 page, 359057 bytes).
+Output written on poster_applications.pdf (1 page, 388287 bytes).
 PDF statistics:
- 76 PDF objects out of 1000 (max. 8388607)
+ 83 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 126 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 131 words of extra memory for PDF output out of 10000 (max. 10000000)
 

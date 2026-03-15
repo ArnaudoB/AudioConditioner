@@ -8,6 +8,7 @@
 \usepackage{amsmath, amssymb, amsfonts, dsfont}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usepackage{capt-of}
 \usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,calc}
 
 % 1. Définition des couleurs officielles (extraites de polytechnique.sty)
@@ -135,6 +136,15 @@
     The text is robustly split using natural pauses (punctuation, newlines). For each chunk (mandated due to the strict \textbf{47-second generation maximum} of the under-the-hood Stable Audio model), the script runs the T5 text-to-speech engine concurrently with our Music Generation model. Finally, speech and music arrays are zero-padded to match lengths, multiplied by their specific gains, and blended with dynamic crossfades to avoid clipping artifacts.
 }
 
+\block{\MakeUppercase{Results: Semantic Alignment Benchmark}}{
+        \begin{center}
+            \includegraphics[width=0.6\linewidth]{score_distributions.png}
+            \captionof{figure}{CLAP Similarity Distribution (via \texttt{benchmark.py})}
+        \end{center}
+        Semantic alignment was benchmarked using the \textbf{CLAP Cosine Similarity} between text prompts and generated audio across 100 samples. 
+        The \textbf{AudioConditioner} distribution shows significant improvement over random baselines, shifting the mean similarity to $0.38$ (LLM does $0.35$).
+}
+
 \column{0.5}
 
 \block{\MakeUppercase{Application III: Video Generation \& Orchestration}}{
@@ -185,14 +195,15 @@
     However, due to the limitation to open-weight models, the quality of the generated video is not as good as the quality of the generated audio. Many artifacts are often visible in the generated video.
 }
 
-\block{\MakeUppercase{If We Had More Time}}{
-    Given more time and compute budget, we would have fine-tuned our model using \textbf{Proximal Policy Optimization (PPO)}. By using the CLAP similarity score (between the generated audio and the text prompt) as a reward signal, the model could strictly optimize itself to directly maximize alignment instead of just distilling a Teacher LLM.
+\block{\MakeUppercase{Conclusion \& Future Perspectives}}{
+    The \textbf{Audio\-Conditioner} framework successfully demonstrates the possibility of steering complex music diffusion models through a lightweight, semantically-aware descriptor bridge. By distilling teacher LLM knowledge into a dedicated module, we achieved zero-shot visual-to-audio alignment across three different production pipelines.
     \vspace{0.5cm}
+
+    Moving forward, the most promising path for optimization lies in \textbf{Reinforcement Learning}. By utilizing \textbf{Proximal Policy Optimization (PPO)} and using the CLAP similarity score as a dense reward signal, the model could strictly optimize its internal weights to maximize semantic alignment directly, bypassing the need for a intermediate Teacher LLM. 
     
     \begin{itemize}
-        \item[\color{rouge485}\textbullet] \textbf{The Bottleneck:} In RL algorithms like PPO, the agent needs to continually generate outputs (rollouts) to explore the environment and receive rewards. 
-        \item[\color{rouge485}\textbullet] \textbf{Order of Magnitude:} A single audio generation step with \textbf{Stable Audio} takes approximately \textbf{1 minute} to complete.
-        \item[\color{bleu303}\textbullet] \textbf{Conclusion:} Gathering enough generation trajectories to meaningfully update the network via PPO would thus require \textbf{weeks of continuous computing time}, making it unfeasible within the scope of this project.
+        \item[\color{bleu303}\textbullet] \textbf{Computational Constraint:} Currently, the 1-minute generation time per rollout makes RL unfeasible without massive compute clusters.
+        \item[\color{bleu303}\textbullet] \textbf{Ambition:} Such a fine-tuning would allow the descriptor to discover musical nuances that textual descriptions alone cannot capture.
     \end{itemize}
 }
 
