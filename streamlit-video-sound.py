@@ -19,7 +19,7 @@ PICTURES_DIR = ROOT_DIR / "pictures"
 
 st.set_page_config(page_title="Video + Music Generator", layout="wide")
 st.title("Video + Music Generator")
-st.write("Anime une image avec Stable Video Diffusion et génère une musique cohérente avec AudioConditioner.")
+st.write("Anime une image avec CogVideoX et génère une musique cohérente avec AudioConditioner.")
 
 
 @st.cache_resource
