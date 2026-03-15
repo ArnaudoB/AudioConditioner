@@ -6,6 +6,7 @@ import soundfile as sf
 import streamlit as st
 import torch
 
+from checkpoint_paths import CHUNKS_CHECKPOINT
 from models.AudioConditioner import AudioConditioner
 from models.BLIPModel import BLIPModel
 from models.CLAPModel import CLAPModel
@@ -16,7 +17,7 @@ from models.T5TTS import T5TTS
 
 
 ROOT_DIR = Path(__file__).resolve().parent
-DEFAULT_CHECKPOINT = ROOT_DIR / "saves" / "model_checkpoint.pt"
+DEFAULT_CHECKPOINT = CHUNKS_CHECKPOINT
 DEFAULT_REFERENCE_AUDIO = ROOT_DIR / "sounds" / "reference_story.wav"
 DEFAULT_REFERENCE_TEXT = (
     "Three months later, Leningrad was officially renamed Saint Petersburg."

@@ -10,6 +10,7 @@ torchsde
 # Transformers and NLP
 transformers>=4.30.0
 tokenizers>=0.13.0
+sentencepiece>=0.2.0
 
 # JSON and data processing
 orjson>=3.8.0
@@ -30,3 +31,4 @@ streamlit
 f5-tts
 
 opencv-python>=4.5.0
+tiktoken

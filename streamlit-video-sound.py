@@ -19,7 +19,7 @@ PICTURES_DIR = ROOT_DIR / "pictures"
 
 st.set_page_config(page_title="Video + Music Generator", layout="wide")
 st.title("Video + Music Generator")
-st.write("Anime une image avec Stable Video Diffusion et génère une musique cohérente avec AudioConditioner.")
+st.write("Anime une image avec CogVideoX et génère une musique cohérente avec AudioConditioner.")
 
 
 @st.cache_resource
@@ -48,7 +48,7 @@ def load_selected_image(uploaded_file, sample_name: str | None) -> tuple[Image.I
     return None, None
 
 
-def display_result(result: GenerationResult):
+def display_result(result: GenerationResult, key_prefix: str):
     final_video_bytes = result.final_video_path.read_bytes()
     audio_bytes = result.audio_path.read_bytes()
 
@@ -78,6 +78,7 @@ def display_result(result: GenerationResult):
             data=result.final_video_path.read_bytes(),
             file_name=result.final_video_path.name,
             mime="video/mp4",
+            key=f"{key_prefix}_download_final_video",
         )
     with download_col2:
         st.download_button(
@@ -85,6 +86,7 @@ def display_result(result: GenerationResult):
             data=result.silent_video_path.read_bytes(),
             file_name=result.silent_video_path.name,
             mime="video/mp4",
+            key=f"{key_prefix}_download_silent_video",
         )
     with download_col3:
         st.download_button(
@@ -92,6 +94,7 @@ def display_result(result: GenerationResult):
             data=result.audio_path.read_bytes(),
             file_name=result.audio_path.name,
             mime="audio/wav",
+            key=f"{key_prefix}_download_audio",
         )
 
     st.caption(f"Fichiers sauvegardés dans {result.final_video_path.parent}")
@@ -158,7 +161,7 @@ if st.button("Générer vidéo + musique", type="primary", use_container_width=T
             "final_video_path": str(result.final_video_path),
         }
         st.success("Génération terminée.")
-        display_result(result)
+        display_result(result, key_prefix="current")
 
 if "last_result" in st.session_state:
     saved = st.session_state["last_result"]
@@ -172,4 +175,4 @@ if "last_result" in st.session_state:
     )
     st.divider()
     st.subheader("Dernier résultat")
-    display_result(restored_result)
+    display_result(restored_result, key_prefix="last")
