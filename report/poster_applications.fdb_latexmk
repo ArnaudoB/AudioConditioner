@@ -1,10 +1,9 @@
 # Fdb version 4
-["pdflatex"] 1773593877.61891 "c:/Users/keyva/Documents/Polytechnique 3A/gen ai/AudioConditioner/report/poster_applications.tex" "poster_applications.pdf" "poster_applications" 1773593879.89552 0
+["pdflatex"] 1773595540.19965 "c:/Users/keyva/Documents/Polytechnique 3A/gen ai/AudioConditioner/report/poster_applications.tex" "poster_applications.pdf" "poster_applications" 1773595541.70201 0
   "C:/Users/keyva/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1773590841 280613 f48cdcc7cf6aec4f56908fdfa0385d6c ""
   "C:/Users/keyva/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1773439861 13208469 8d46890030123ce9381c78fa96d28939 ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc" 1256929440 2375 baa924870cfb487815765f9094cf3728 ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc" 1256929440 2405 5dcf2c1b967ee25cc46c58cd52244aed ""
-  "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc" 1256929440 2327 9d6df24f9c4f7368395224341a95523a ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc" 1256929440 3031 6c4d3515bf7115d8518af1c9ab97ca44 ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/jknappen/ec/ecrm1000.tfm" 993062122 3148 7e594c8240c71e432203f65ab5f95a51 ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/jknappen/ec/ecrm2488.tfm" 993062132 3184 93c67f4c0884ba9e31b75d469978f63b ""
@@ -17,10 +16,8 @@
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/ec-lmri12.tfm" 1256929440 17144 271aaf9ebb339934b04110dc5211fba4 ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/ec-lmtt12.tfm" 1256929440 1368 6a60e6a5e029141041d64d339b87e533 ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmex10.tfm" 1256929440 992 ce925c9346c7613270a79afbee98c070 ""
-  "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmmi10.tfm" 1256929440 1528 6d36b2385e0ca062a654de6ac59cb34f ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmmi12.tfm" 1256929440 1524 753b192b18f2991794f9d41a8228510b ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/lmsy10.tfm" 1256929440 1308 02cc510f9dd6012e5815d0c0ffbf6869 ""
-  "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/rm-lmr10.tfm" 1256929440 11868 4f81e9b6033c032bdaf9884f4d7ef412 ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/rm-lmr12.tfm" 1256929440 11888 6841b91e46b65cf41a49b160e6e74130 ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/rm-lmr17.tfm" 1256929440 11948 fa976674f030491ad35532a8a1e37325 ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/fonts/tfm/public/lm/ts1-lmr17.tfm" 1256929440 1632 982c478a2197c6d187b59ba32100d731 ""
@@ -191,10 +188,10 @@
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1656236890 56148 51a9a8571c07b9921892ae11063ae853 ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/tex/latex/xkeyval/xkeyval.sty" 1656236919 4937 4ce600ce9bd4ec84d0250eb6892fcf4f ""
   "C:/Users/keyva/AppData/Local/Programs/MiKTeX/tex/latex/xstring/xstring.sty" 1693735632 123 a302f2c651a95033260db60e51527ae8 ""
-  "c:/Users/keyva/Documents/Polytechnique 3A/gen ai/AudioConditioner/report/poster_applications.tex" 1773593876 12097 5f2727ec210f88668c89a93618381c17 ""
+  "c:/Users/keyva/Documents/Polytechnique 3A/gen ai/AudioConditioner/report/poster_applications.tex" 1773595539 10938 fa44f9354834e7f7eae75e3ea08f076e ""
   "polytechnique-armes.pdf" 1773438776 219178 2b99ba9f02d2c7193defe3df100738bb ""
-  "poster_applications.aux" 1773593879 413 9b9806c9c574e9da287fadc25e468563 "pdflatex"
-  "poster_applications.tex" 1773593876 12097 5f2727ec210f88668c89a93618381c17 ""
+  "poster_applications.aux" 1773595541 413 9b9806c9c574e9da287fadc25e468563 "pdflatex"
+  "poster_applications.tex" 1773595539 10938 fa44f9354834e7f7eae75e3ea08f076e ""
   "score_distributions.png" 1773590680 32556 1dc8850a3e63b6b41e58db1c59027868 ""
   (generated)
   "poster_applications.aux"

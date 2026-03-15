@@ -9,46 +9,37 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,calc}
-
-% 1. Définition des couleurs officielles (extraites de polytechnique.sty)
+\tikzposterlatexaffectionproofoff
+% 1. Définition des couleurs officielles
 \definecolor{bleu303}{RGB}{0,62,92}
 \definecolor{bleu315}{RGB}{0,104,128}
 \definecolor{rouge485}{RGB}{213,43,30}
-\definecolor{bleu303pale}{RGB}{204,216,222} % Approximation de bleu303!20!white
+\definecolor{bleu303pale}{RGB}{204,216,222} 
 
-% 2. Création d'un style de couleur personnalisé pour tikzposter
+% 2. Création d'un style de couleur personnalisé
 \definecolorstyle{PolyColors}{
     \definecolor{colorOne}{named}{bleu303}
     \definecolor{colorTwo}{named}{bleu315}
     \definecolor{colorThree}{named}{rouge485}
 }{
-    % Arrière-plan (fond clair pour la lisibilité)
     \colorlet{backgroundcolor}{bleu303pale!30!white}
     \colorlet{framecolor}{bleu303}
-    %
-    % En-tête (Titre)
     \colorlet{titlebgcolor}{bleu303}
     \colorlet{titlefgcolor}{white}
-    %
-    % Blocs principaux
     \colorlet{blocktitlebgcolor}{bleu303}
     \colorlet{blocktitlefgcolor}{white}
     \colorlet{blockbodybgcolor}{white}
     \colorlet{blockbodyfgcolor}{black}
-    %
-    % Sous-blocs (Inner blocks)
     \colorlet{innerblocktitlebgcolor}{bleu315}
     \colorlet{innerblocktitlefgcolor}{white}
     \colorlet{innerblockbodybgcolor}{bleu315!10!white}
     \colorlet{innerblockbodyfgcolor}{black}
-    %
-    % Notes (Post-its)
     \colorlet{notefgcolor}{black}
     \colorlet{notebgcolor}{rouge485!20!white}
     \colorlet{notefrcolor}{rouge485}
 }
 
-% 3. Application du thème Desert combiné avec nos couleurs
+% 3. Application du thème
 \usetheme{Desert}
 \usecolorstyle{PolyColors}
 
@@ -81,7 +72,6 @@
 \author{Keyvan Attarian \& Baptiste Arnaudo}
 \institute{CSC\_52002\_EP - Multimodal generative AI}
 
-
 \begin{document}
 
 \maketitle
@@ -90,39 +80,39 @@
 
 \column{0.5}
 
-\block{\MakeUppercase{Introduction \& The Descriptor Model}}{
-    The \textbf{Audio\-Conditioner} is a high-level multimodal model that bridges the gap between visual/textual semantics and music generation utilizing \textbf{BLIP} for image captioning and the \textbf{CLAP} text encoder for semantic embeddings.
-    \vspace{0.5cm}
+\block{\textsc{Introduction \& The Descriptor Model}}{
+    \textbf{AudioConditioner} is a high-level multimodal model that we developed to bridge the gap between visual/textual semantics and music generation. We utilize BLIP for image captioning and the CLAP text encoder for semantic embeddings.
+    \medskip
     
-    The core innovation is our \textbf{Descriptor Model}, which is the \textit{only trainable component in the entire architecture}. All other models (BLIP, CLAP, Stable Audio) are kept completely frozen. The Descriptor acts as a multi-task learning bridge, mapping the CLAP text embedding through a shared neural backbone into 12 discrete and continuous musical attributes.
-    \vspace{0.5cm}
+    The central component is our \textbf{Descriptor Model}, which is the only trainable component in the entire architecture. We keep all other models (BLIP, CLAP, Stable Audio) completely frozen. The Descriptor acts as a multi-task learning bridge; we map the CLAP text embedding through a shared neural backbone into 12 discrete and continuous musical attributes.
+    \medskip
     
-    The generated attributes are structurally combined within a \texttt{Music\-Descriptor} object. This object then programmatically generates the final descriptive text prompt fed into \textbf{Stable Audio} (which has a 47-second generation limit). Finally, to ensure strict semantic alignment, we generate $N$ candidates and re-rank them using \textbf{Cosine Similarity} against the CLAP text embedding.
+    We structurally combine the generated attributes within a \textbf{MusicDescriptor} object. We then use this object to programmatically generate the descriptive text prompt fed into Stable Audio (which has a 47-second generation limit). Finally, to ensure semantic alignment, we generate $N$ candidates and re-rank them using cosine similarity against the CLAP text embedding.
 }
 
-\block{\MakeUppercase{The MusicDescriptor Schema}}{
+\block{\textsc{The MusicDescriptor Schema}}{
     {\color{bleu315}\Large\scshape Classification Attributes}
     \begin{itemize}
-        \item[\color{bleu303}\textbullet] \textbf{Mood} \textit{($\rightarrow$ Multi-Label List)}: Emotional states (e.g., dark, epic, melancholic).
-        \item[\color{bleu303}\textbullet] \textbf{Key/Mode} \textit{($\rightarrow$ Single-Label)}: The musical scale used (e.g., major, minor).
-        \item[\color{bleu303}\textbullet] \textbf{Instrumentation} \textit{($\rightarrow$ Multi-Label List)}: Active instruments (e.g., strings, synth).
-        \item[\color{bleu303}\textbullet] \textbf{Rhythm Style} \textit{($\rightarrow$ Single-Label)}: Overall rhythmic feel (e.g., sparse, pulsing).
-        \item[\color{bleu303}\textbullet] \textbf{Structure} \textit{($\rightarrow$ Single-Label)}: Internal song progression (e.g., slow-build).
-        \item[\color{bleu303}\textbullet] \textbf{Production Style} \textit{($\rightarrow$ Multi-Label List)}: Mixing/Genre aesthetic (e.g., cinematic).
-        \item[\color{bleu303}\textbullet] \textbf{Dynamics Profile} \textit{($\rightarrow$ Single-Label)}: Volume progression (e.g., gradual build).
+        \item[\color{bleu303}\textbullet] \textbf{Mood} ($\rightarrow$ Multi-Label List): Emotional states (e.g., dark, epic, melancholic).
+        \item[\color{bleu303}\textbullet] \textbf{Key/Mode} ($\rightarrow$ Single-Label): The musical scale used (e.g., major, minor).
+        \item[\color{bleu303}\textbullet] \textbf{Instrumentation} ($\rightarrow$ Multi-Label List): Active instruments (e.g., strings, synth).
+        \item[\color{bleu303}\textbullet] \textbf{Rhythm Style} ($\rightarrow$ Single-Label): Overall rhythmic feel (e.g., sparse, pulsing).
+        \item[\color{bleu303}\textbullet] \textbf{Structure} ($\rightarrow$ Single-Label): Internal song progression (e.g., slow-build).
+        \item[\color{bleu303}\textbullet] \textbf{Production Style} ($\rightarrow$ Multi-Label List): Mixing/Genre aesthetic (e.g., cinematic).
+        \item[\color{bleu303}\textbullet] \textbf{Dynamics Profile} ($\rightarrow$ Single-Label): Volume progression (e.g., gradual build).
     \end{itemize}
-    \vspace{0.5cm}
+    \medskip
     {\color{bleu315}\Large\scshape Regression Attributes}
     \begin{itemize}
-        \item[\color{bleu303}\textbullet] \textbf{Energy} \textit{($[0.0, 1.0]$)}: Overall intensity level (0.0 = very calm, 1.0 = very energetic).
-        \item[\color{bleu303}\textbullet] \textbf{Valence} \textit{($[0.0, 1.0]$)}: Emotional polarity (0.0 = very negative/sad, 1.0 = very positive/happy).
-        \item[\color{bleu303}\textbullet] \textbf{Tempo} \textit{($[50, 180]$ BPM)}: Beats per minute, strictly normalized to $[0.0, 1.0]$.
-        \item[\color{bleu303}\textbullet] \textbf{Harmonic Tension} \textit{($[0.0, 1.0]$)}: Chord dissonance (0.0 = very consonant, 1.0 = very dissonant).
-        \item[\color{bleu303}\textbullet] \textbf{Texture Density} \textit{($[0.0, 1.0]$)}: Number of simultaneous elements (0.0 = very minimal, 1.0 = very layered).
+        \item[\color{bleu303}\textbullet] \textbf{Energy} ($[0.0, 1.0]$): Intensity level.
+        \item[\color{bleu303}\textbullet] \textbf{Valence} ($[0.0, 1.0]$): Emotional polarity (0.0 = sad, 1.0 = happy).
+        \item[\color{bleu303}\textbullet] \textbf{Tempo} ($[50, 180]$ BPM): Beats per minute, normalized to $[0.0, 1.0]$.
+        \item[\color{bleu303}\textbullet] \textbf{Harmonic Tension} ($[0.0, 1.0]$): Chord dissonance.
+        \item[\color{bleu303}\textbullet] \textbf{Texture Density} ($[0.0, 1.0]$): Number of simultaneous elements.
     \end{itemize}
 }
 
-\block{\MakeUppercase{Framework Architecture}}{
+\block{\textsc{Framework Architecture}}{
     \begin{center}
     \begin{tikzpicture}[
         node distance=2cm and 2cm,
@@ -155,14 +145,14 @@
 
 \column{0.5}
 
-\block{\MakeUppercase{Phase 1: Generative LLM Distillation}}{
-    Training the \textbf{Descriptor Model} required a large parallel corpus mapping natural language to the strict \texttt{Music\-Descriptor} format. We built this automatically through \textbf{Prompt Mixing} and \textbf{Teacher LLM Distillation}:
+\block{\textsc{Phase 1: Generative LLM Distillation}}{
+    We trained the \textbf{Descriptor Model} using a parallel corpus mapping natural language to the strict \textbf{MusicDescriptor} format. We built this dataset through prompt mixing and teacher LLM distillation:
     \begin{itemize}
-        \item \textbf{Data Generation:} Instead of using an LLM to write scenes, we procedurally generated millions of short scene combinations by randomly mixing predefined \textit{characters}, \textit{characteristics}, \textit{settings}, and \textit{emotional events} (e.g., \textit{"A lonely astronaut under a burning sunset discovers an unexpected opportunity."}).
-        \item \textbf{Distillation:} We then prompted an LLM to act as an expert composer, taking these random scenes and outputting the deterministic JSON \texttt{Music\-Descriptor} (Mood, Tempo, etc.) fitting each scene.
-        \item \textbf{Optimization:} The model was trained using an \texttt{AdaptedMusicDescriptorLoss} function (Cross-Entropy for categorical attributes and MSE for continuous target regressions).
+        \item \textbf{Data Generation:} We procedurally generated short scene combinations by randomly mixing predefined characters, settings, and events (e.g., \textit{"A lonely astronaut under a sunset discovers an opportunity."}).
+        \item \textbf{Distillation:} We prompted an LLM to act as a composer, taking these scenes and outputting the deterministic JSON MusicDescriptor fitting each scene.
+        \item \textbf{Optimization:} We trained the model using an AdaptedMusicDescriptorLoss function (Cross-Entropy for categorical attributes and MSE for continuous target regressions).
     \end{itemize}
-    \vspace{1cm}
+    \medskip
     \begin{center}
         \includegraphics[width=0.48\linewidth]{avg_loss.png}
         \hfill
@@ -170,16 +160,16 @@
     \end{center}
 }
 
-\block{\MakeUppercase{Phase 2: Contextual Novel Fine-Tuning}}{
-    To support narrative audiobook generation (\textbf{ReadMusic}), we fine-tuned the model to handle longer contextual evolution:
+\block{\textsc{Phase 2: Contextual Novel Fine-Tuning}}{
+    To support narrated audiobooks with adaptive background music (ReadMusic), we fine-tuned the model to handle longer contextual evolution:
     \begin{enumerate}
-        \item \textbf{Novel Chunking:} Public domain novels data were split into consecutive paragraphs (up to 80 words max).
-        \item \textbf{Target Generation:} The Teacher LLM assigned progressive \texttt{MusicDescriptors} respecting the storyline's emotional flow.
-        \item \textbf{Fine-Tuning Outcomes:} The Descriptor internalizes literary context, preventing abrupt changes and enabling smooth, continuous emotional transitions for long-form reading.
+        \item \textbf{Novel Chunking:} We split public domain novels into consecutive paragraphs (up to 80 words).
+        \item \textbf{Target Generation:} We used the teacher LLM to assign progressive MusicDescriptors respecting the storyline's emotional flow.
+        \item \textbf{Fine-Tuning Outcomes:} The descriptor internalizes literary context; we aim to prevent abrupt changes and enable continuous emotional transitions for long-form reading.
     \end{enumerate}
 }
 
-\block{\MakeUppercase{Training Pipeline Overview}}{
+\block{\textsc{Training Pipeline Overview}}{
     \begin{center}
     \begin{tikzpicture}[
         node distance=1.5cm and 1.5cm,

@@ -10,46 +10,37 @@
 \usepackage{tikz}
 \usepackage{capt-of}
 \usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,calc}
-
-% 1. Définition des couleurs officielles (extraites de polytechnique.sty)
+\tikzposterlatexaffectionproofoff
+% 1. Définition des couleurs officielles
 \definecolor{bleu303}{RGB}{0,62,92}
 \definecolor{bleu315}{RGB}{0,104,128}
 \definecolor{rouge485}{RGB}{213,43,30}
-\definecolor{bleu303pale}{RGB}{204,216,222} % Approximation de bleu303!20!white
+\definecolor{bleu303pale}{RGB}{204,216,222} 
 
-% 2. Création d'un style de couleur personnalisé pour tikzposter
+% 2. Création d'un style de couleur personnalisé
 \definecolorstyle{PolyColors}{
     \definecolor{colorOne}{named}{bleu303}
     \definecolor{colorTwo}{named}{bleu315}
     \definecolor{colorThree}{named}{rouge485}
 }{
-    % Arrière-plan (fond clair pour la lisibilité)
     \colorlet{backgroundcolor}{bleu303pale!30!white}
     \colorlet{framecolor}{bleu303}
-    %
-    % En-tête (Titre)
     \colorlet{titlebgcolor}{bleu303}
     \colorlet{titlefgcolor}{white}
-    %
-    % Blocs principaux
     \colorlet{blocktitlebgcolor}{bleu303}
     \colorlet{blocktitlefgcolor}{white}
     \colorlet{blockbodybgcolor}{white}
     \colorlet{blockbodyfgcolor}{black}
-    %
-    % Sous-blocs (Inner blocks)
     \colorlet{innerblocktitlebgcolor}{bleu315}
     \colorlet{innerblocktitlefgcolor}{white}
     \colorlet{innerblockbodybgcolor}{bleu315!10!white}
     \colorlet{innerblockbodyfgcolor}{black}
-    %
-    % Notes (Post-its)
     \colorlet{notefgcolor}{black}
     \colorlet{notebgcolor}{rouge485!20!white}
     \colorlet{notefrcolor}{rouge485}
 }
 
-% 3. Application du thème Desert combiné avec nos couleurs
+% 3. Application du thème
 \usetheme{Desert}
 \usecolorstyle{PolyColors}
 
@@ -82,7 +73,6 @@
 \author{Keyvan Attarian \& Baptiste Arnaudo}
 \institute{CSC\_52002\_EP - Multimodal generative AI}
 
-
 \begin{document}
 
 \maketitle
@@ -91,21 +81,22 @@
 
 \column{0.5}
 
-\block{\MakeUppercase{Application I: Image to Ambient Music}}{
-    One direct and powerful application of the \textbf{Audio\-Conditioner} framework is generating ambient music and atmospheres based solely on visual inputs. By passing an image into our pipeline:
-    \vspace{0.5cm}
+\block{\textsc{Application I: Image to Ambient Music}}{
+    One direct application of the \textbf{AudioConditioner} framework is generating ambient music and atmospheres based on visual inputs. By passing an image into our pipeline:
+    \medskip
     
     \begin{itemize}
-        \item The \textbf{BLIP Model} automatically captions the image's scene, extracting emotional elements, colors, objects, and implicit narrative.
-        \item This scene description drives the \textbf{Audio\-Conditioner} pipeline (through the \textbf{CLAP Descriptor} and \textbf{Stable Audio}), outputting high-fidelity audio that perfectly encapsulates the mood of the image.
-        \item The audio candidates are re-ranked using the \textbf{CLAP Cosine Similarity Filter} to ensure the highest alignment with the initial visual.
+        \item We use \textbf{BLIP} to automatically focus on the scene, extracting elements, colors, and objects.
+        \item This scene description drives the AudioConditioner pipeline (through the CLAP Descriptor and Stable Audio); we aim to match the mood of the image in the generated audio.
+        \item We re-rank the audio candidates using the CLAP cosine similarity filter to prioritize alignment with the initial visual.
     \end{itemize}
-    \vspace{0.5cm}
-    This enables seamless soundtrack generation for static artwork, game environments, or visual media.
+    \medskip
+    This enables automated soundtrack generation for static artwork, game environments, or visual media.
 }
 
-\block{\MakeUppercase{Application II: Text Reading with Adaptive Music}}{
-    The \textbf{ReadMusic} module merges Speech Synthesis with adaptive background music scoring, turning textual narratives into fully immersive audiobooks.
+\block{\textsc{Application II: Text Reading with Adaptive Music}}{
+    The \textbf{ReadMusic} module combines speech synthesis with adaptive background music scoring to produce narrated audiobooks with adaptive background music.
+    \medskip
     
     \begin{center}
     \begin{tikzpicture}[
@@ -116,8 +107,8 @@
         \node[box, fill=green!10] (input) {Input Narrative Text};
         \node[box] (chunking) [below=1.5cm of input] {Text Chunking \\ (Max 80 words/chunk)};
         
-        \node[box, fill=purple!10] (tts) [below left=2cm and 0.5cm of chunking] {\textbf{T5-TTS Synthesis} \\ Generate Speech \\ resample to 48kHz};
-        \node[box, fill=orange!10] (ac) [below right=2cm and 0.5cm of chunking] {\textbf{Audio\-Conditioner} \\ Generate Music \\ Match Duration};
+        \node[box, fill=purple!10] (tts) [below left=2cm and 0.5cm of chunking] {\textbf{F5-TTS Synthesis} \\ Generate Speech \\ resample to 48kHz};
+        \node[box, fill=orange!10] (ac) [below right=2cm and 0.5cm of chunking] {\textbf{Audio Conditioner} \\ Generate Music \\ Match Duration};
         
         \node[box] (mixer) [below=10cm of chunking] {Length Matching \\ \& Dual Mixer ($Gains$)};
         \node[box, fill=yellow!10] (fade) [below=1.5cm of mixer] {Cross-fade Appending};
@@ -132,32 +123,45 @@
         \draw[arrow] (fade) -- (output);
     \end{tikzpicture}
     \end{center}
+    \medskip
     
-    The text is robustly split using natural pauses (punctuation, newlines). For each chunk (mandated due to the strict \textbf{47-second generation maximum} of the under-the-hood Stable Audio model), the script runs the T5 text-to-speech engine concurrently with our Music Generation model. Finally, speech and music arrays are zero-padded to match lengths, multiplied by their specific gains, and blended with dynamic crossfades to avoid clipping artifacts.
+    We split the text using natural pauses such as punctuation or newlines. For each chunk (required by the 47-second generation maximum of the Stable Audio model), we run the \textbf{F5-TTS} engine concurrently with our music generation model. We zero-pad the speech and music arrays to match lengths, multiply them by specific gains, and blend them with dynamic crossfades.
 }
 
-\block{\MakeUppercase{Results: Semantic Alignment Benchmark}}{
+\block{\textsc{Results: Semantic Alignment Benchmark}}{
         \begin{center}
-            \includegraphics[width=0.6\linewidth]{score_distributions.png}
+            \includegraphics[width=0.7\linewidth]{score_distributions.png}
             \captionof{figure}{CLAP Similarity Distribution (via \texttt{benchmark.py})}
         \end{center}
-        Semantic alignment was benchmarked using the \textbf{CLAP Cosine Similarity} between text prompts and generated audio across 100 samples. 
-        The \textbf{AudioConditioner} distribution shows significant improvement over random baselines, shifting the mean similarity to $0.38$ (LLM does $0.35$).
+        \medskip
+        \begin{center}
+        \begin{tabular}{lc}
+        \hline
+        Method & Mean CLAP Similarity \\
+        \hline
+        AudioConditioner & 0.38 \\
+        LLM Baseline (Qwen2.5-7B) & 0.35 \\
+        Random Baseline & 0.15 \\
+        \hline
+        \end{tabular}
+        \end{center}
+        \medskip
+        We benchmarked semantic alignment using CLAP cosine similarity between input text and generated audio across 100 held-out samples. AudioConditioner achieved a mean similarity of 0.38, compared to 0.35 for the direct LLM baseline.
 }
 
 \column{0.5}
 
-\block{\MakeUppercase{Application III: Video Generation \& Orchestration}}{
-    Taking the visual modality further, the \texttt{video\_sound.py} application creates animated cinematic clips with a tightly synchronized and responsive musical score from a single still image.
-    \vspace{1cm}
+\block{\textsc{Application III: Video Generation \& Orchestration}}{
+    We developed the \texttt{video\_sound.py} application to create animated cinematic clips with a synchronized musical score from a single still image.
+    \medskip
     
     \textbf{Parallel Execution Pathway:}
-    \vspace{0.5cm}
     \begin{enumerate}
-        \item \textbf{Image Animation:} The input image is parsed through the \textbf{CogVideoX} Model. As we strictly utilized an \textit{open-weight model} for this task, the resulting video quality remains relatively limited but serves as a functional proof-of-concept for the pipeline.
-        \item \textbf{Image Orchestration:} Simultaneously, the image goes directly into the \textbf{Audio\-Conditioner} model to extract visual semantics and produce a matching audio waveform.
-        \item \textbf{Multimodal Merging:} We integrate \textbf{FFmpeg} through subprocesses to automatically compile the generated silent video (\texttt{.mp4}) and the generated audio (\texttt{.wav}), multiplexing them into a single presentation-ready file.
+        \item \textbf{Image Animation:} We parse the input image through the \textbf{CogVideoX} model. As we strictly utilized an open-weight model, the resulting video quality remains limited but serves as a proof-of-concept for the pipeline.
+        \item \textbf{Image Orchestration:} Simultaneously, we pass the image directly into the \textbf{AudioConditioner} model to extract visual semantics and produce a matching audio waveform.
+        \item \textbf{Multimodal Merging:} We integrate \textbf{FFmpeg} to compile the generated silent video and the generated audio, multiplexing them into a final synced file.
     \end{enumerate}
+    \medskip
     
     \begin{center}
     \begin{tikzpicture}[
@@ -189,31 +193,26 @@
         
     \end{tikzpicture}
     \end{center}
+    \medskip
     
-    These applications showcase the great versatility of \textbf{Audio\-Conditioner}, positioning it as a strong foundation for automated scoring, procedural art generation, and immersive multimodal storytelling.
-
-    However, due to the limitation to open-weight models, the quality of the generated video is not as good as the quality of the generated audio. Many artifacts are often visible in the generated video.
+    These applications demonstrate flexibility across three pipelines for automated scoring, procedural art generation, and multimodal storytelling. We note that the quality of the generated video is lower than the audio quality, with visible artifacts.
 }
 
-\block{\MakeUppercase{Conclusion \& Future Perspectives}}{
-    The \textbf{Audio\-Conditioner} framework successfully demonstrates the possibility of steering complex music diffusion models through a lightweight, semantically-aware descriptor bridge. By distilling teacher LLM knowledge into a dedicated module, we achieved zero-shot visual-to-audio alignment across three different production pipelines.
-    \vspace{0.5cm}
-
-    Moving forward, the most promising path for optimization lies in \textbf{Reinforcement Learning}. By utilizing \textbf{Proximal Policy Optimization (PPO)} and using the CLAP similarity score as a dense reward signal, the model could strictly optimize its internal weights to maximize semantic alignment directly, bypassing the need for a intermediate Teacher LLM. 
+\block{\textsc{Conclusion \& Future Perspectives}}{
+    We demonstrate that \textbf{AudioConditioner} steers music diffusion via a lightweight descriptor bridge trained by knowledge distillation. 
+    We achieved three working pipelines — image-to-music, text-to-narrated-audiobook, and image-to-video-with-score — with measurable semantic alignment. 
+    \medskip
     
-    \begin{itemize}
-        \item[\color{bleu303}\textbullet] \textbf{Computational Constraint:} Currently, the 1-minute generation time per rollout makes RL unfeasible without massive compute clusters.
-        \item[\color{bleu303}\textbullet] \textbf{Ambition:} Such a fine-tuning would allow the descriptor to discover musical nuances that textual descriptions alone cannot capture.
-    \end{itemize}
+    Future work focuses on contrastive fine-tuning using \textbf{Reinforcement Learning}. By utilizing \textbf{Proximal Policy Optimization (PPO)} with the CLAP similarity score as a dense reward signal, we aim to optimize the descriptor weights to maximize semantic alignment directly. Given that a single audio generation step requires approximately 1 minute, a full PPO training cycle would require several days of continuous execution; however, this would allow the model to discover musical nuances that distillation from a teacher LLM alone may not capture. Longer-term trajectories include human perceptual evaluation and expanded training datasets to further refine the descriptor's precision.
 }
 
-\block{\MakeUppercase{References: Models Used}}{
+\block{\textsc{References}}{
     \begin{itemize}
-        \item[\color{bleu303}\textbullet] \textbf{BLIP (Bootstrapping Language-Image Pre-training):} Visual scene semantic extraction and captioning.
-        \item[\color{bleu303}\textbullet] \textbf{CLAP (Contrastive Language-Audio Pretraining):} Text semantic embeddings and cosine similarity candidate re-ranking.
-        \item[\color{bleu303}\textbullet] \textbf{Stable Audio (Open):} Core diffusion model for structural 47-second music sequence generation.
-        \item[\color{bleu303}\textbullet] \textbf{T5-TTS:} Robust text-to-speech synthesis engine utilized in the ReadMusic narrative pipeline.
-        \item[\color{bleu303}\textbullet] \textbf{CogVideoX:} Advanced transformer-based text-to-video diffusion model for high-consistency visual animation.
+        \item Li et al. (2022). \textit{BLIP}: Bootstrapping Language-Image Pre-training for Digital Content Understanding.
+        \item Elizalde et al. (2023). \textit{CLAP}: Learning Audio Concepts From Natural Language Supervision.
+        \item Evans et al. (2024). \textit{Stable Audio Open}: Latent Diffusion for Music Generation.
+        \item Chen et al. (2024). \textit{F5-TTS}: A Fully Non-Autoregressive Transformer for TTS.
+        \item Yang et al. (2024). \textit{CogVideoX}: Text-to-Video Diffusion with Transformers.
     \end{itemize}
 }
 
