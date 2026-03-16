@@ -1,4 +1,5 @@
 import argparse
+import re
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -91,7 +92,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def load_models(checkpoint_path: Path, video_fps: int, video_seed: int | None, loop_video: bool):
+def load_models(
+    checkpoint_path: Path,
+    video_fps: int = 12,
+    video_seed: int | None = None,
+    loop_video: bool = False,
+):
     clap_model = CLAPModel()
     music_prompter = TwoDeepDescriptor(clap_dim=512, backbone_dim=256, top_p=0.1)
     music_prompter.load_state_dict(torch.load(checkpoint_path, map_location=torch.device("cpu")))
@@ -102,9 +108,9 @@ def load_models(checkpoint_path: Path, video_fps: int, video_seed: int | None, l
             "A cinematic photorealistic shot with stable camera and coherent body motion, "
             "high detail, physically plausible movement, no abrupt action."
         ),
-        enable_loop_prompt=loop_video,
         fps=video_fps,
         seed=video_seed,
+        loop_video=loop_video,
     )
     audio_conditioner = AudioConditioner(stable_audio_model, music_prompter, blip_model, clap_model)
     return audio_conditioner, img2vid_model, stable_audio_model
@@ -117,8 +123,21 @@ def save_generated_audio(generated_audio: torch.Tensor, sampling_rate: int, outp
     return output_path
 
 
+def sanitize_filename_stem(stem: str) -> str:
+    """Normalize user-provided stems to avoid backend path parsing issues."""
+    cleaned = stem.strip()
+    cleaned = re.sub(r"\s+", "_", cleaned)
+    cleaned = re.sub(r"[^A-Za-z0-9._-]", "", cleaned)
+    return cleaned or "generated"
+
+
 def merge_video_and_audio(video_path: Path, audio_path: Path, output_path: Path) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not video_path.exists():
+        raise FileNotFoundError(f"Silent video not found before ffmpeg merge: {video_path}")
+    if not audio_path.exists():
+        raise FileNotFoundError(f"Audio file not found before ffmpeg merge: {audio_path}")
+
     command = [
         "ffmpeg",
         "-y",
@@ -135,7 +154,16 @@ def merge_video_and_audio(video_path: Path, audio_path: Path, output_path: Path)
         "-shortest",
         str(output_path),
     ]
-    subprocess.run(command, check=True)
+
+    try:
+        subprocess.run(command, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as exc:
+        stderr = (exc.stderr or "").strip()
+        raise RuntimeError(
+            "ffmpeg merge failed. "
+            f"video={video_path} audio={audio_path} output={output_path}\n"
+            f"ffmpeg stderr:\n{stderr}"
+        ) from exc
     return output_path
 
 
@@ -152,6 +180,7 @@ def generate_video_with_music_from_image(
     num_waveforms_per_prompt: int,
 ) -> GenerationResult:
     output_dir.mkdir(parents=True, exist_ok=True)
+    safe_image_stem = sanitize_filename_stem(image_stem)
 
     generated_audio, music_descriptor, dissimilarity_score = audio_conditioner(
         image,
@@ -161,9 +190,9 @@ def generate_video_with_music_from_image(
         num_inference_steps=audio_inference_steps,
     )
 
-    silent_video_path = output_dir / f"{image_stem}_silent.mp4"
-    audio_path = output_dir / f"{image_stem}_audio.wav"
-    final_video_path = output_dir / f"{image_stem}_with_music.mp4"
+    silent_video_path = output_dir / f"{safe_image_stem}_silent.mp4"
+    audio_path = output_dir / f"{safe_image_stem}_audio.wav"
+    final_video_path = output_dir / f"{safe_image_stem}_with_music.mp4"
 
     img2vid_model.generate_and_save(image, str(silent_video_path), num_inference_steps=video_inference_steps)
     save_generated_audio(generated_audio, stable_audio_model.pipeline.vae.sampling_rate, audio_path)

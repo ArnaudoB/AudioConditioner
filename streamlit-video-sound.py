@@ -115,7 +115,7 @@ else:
 
 image, image_stem = load_selected_image(uploaded_file, selected_sample)
 if image is not None:
-    st.image(image, caption=image_stem, use_container_width=True)
+    st.image(image, caption=image_stem, width="stretch")
 
 st.subheader("Paramètres")
 col1, col2, col3 = st.columns(3)
@@ -130,7 +130,7 @@ num_waveforms = st.slider("Nombre d'audios candidats", min_value=1, max_value=4,
 checkpoint_path = st.text_input("Checkpoint descriptor", value=str(DEFAULT_CHECKPOINT))
 output_dir = st.text_input("Dossier de sortie", value=str(DEFAULT_OUTPUT_DIR))
 
-if st.button("Générer vidéo + musique", type="primary", use_container_width=True):
+if st.button("Générer vidéo + musique", type="primary", width="stretch"):
     if image is None or image_stem is None:
         st.error("Choisis une image avant de lancer la génération.")
     elif not Path(checkpoint_path).exists():
