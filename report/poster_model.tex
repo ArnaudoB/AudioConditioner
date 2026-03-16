@@ -91,25 +91,48 @@
 }
 
 \block{\textsc{The MusicDescriptor Schema}}{
-    {\color{bleu315}\Large\scshape Classification Attributes}
-    \begin{itemize}
-        \item[\color{bleu303}\textbullet] \textbf{Mood} ($\rightarrow$ Multi-Label List): Emotional states (e.g., dark, epic, melancholic).
-        \item[\color{bleu303}\textbullet] \textbf{Key/Mode} ($\rightarrow$ Single-Label): The musical scale used (e.g., major, minor).
-        \item[\color{bleu303}\textbullet] \textbf{Instrumentation} ($\rightarrow$ Multi-Label List): Active instruments (e.g., strings, synth).
-        \item[\color{bleu303}\textbullet] \textbf{Rhythm Style} ($\rightarrow$ Single-Label): Overall rhythmic feel (e.g., sparse, pulsing).
-        \item[\color{bleu303}\textbullet] \textbf{Structure} ($\rightarrow$ Single-Label): Internal song progression (e.g., slow-build).
-        \item[\color{bleu303}\textbullet] \textbf{Production Style} ($\rightarrow$ Multi-Label List): Mixing/Genre aesthetic (e.g., cinematic).
-        \item[\color{bleu303}\textbullet] \textbf{Dynamics Profile} ($\rightarrow$ Single-Label): Volume progression (e.g., gradual build).
-    \end{itemize}
-    \medskip
-    {\color{bleu315}\Large\scshape Regression Attributes}
-    \begin{itemize}
-        \item[\color{bleu303}\textbullet] \textbf{Energy} ($[0.0, 1.0]$): Intensity level.
-        \item[\color{bleu303}\textbullet] \textbf{Valence} ($[0.0, 1.0]$): Emotional polarity (0.0 = sad, 1.0 = happy).
-        \item[\color{bleu303}\textbullet] \textbf{Tempo} ($[50, 180]$ BPM): Beats per minute, normalized to $[0.0, 1.0]$.
-        \item[\color{bleu303}\textbullet] \textbf{Harmonic Tension} ($[0.0, 1.0]$): Chord dissonance.
-        \item[\color{bleu303}\textbullet] \textbf{Texture Density} ($[0.0, 1.0]$): Number of simultaneous elements.
-    \end{itemize}
+    \begin{center}
+    \begin{tikzpicture}[
+        node distance=0.5cm and 1cm,
+        root/.style={rectangle, draw=bleu303, fill=bleu303, text=white, thick, rounded corners, minimum width=4.5cm, minimum height=1.2cm, font=\bfseries\Large},
+        group/.style={rectangle, draw=bleu315, fill=white, thick, rounded corners, minimum width=8.5cm, align=left, inner sep=12pt},
+        arrow/.style={->, ultra thick, bleu303, >=stealth}
+    ]
+        \node[root] (md) {MusicDescriptor};
+        
+        \node[group, anchor=north east] (cat) at ($(md.south west) + (2.5cm, -1cm)$) {
+            \textbf{\color{bleu315}7 Classification Attributes}\\
+            \medskip
+            \begin{tabular}{ll}
+            \textbullet\ Mood & \textit{\footnotesize (Multi-Label List)} \\
+            \textbullet\ Key/Mode & \textit{\footnotesize (Single-Label)} \\
+            \textbullet\ Instrumentation & \textit{\footnotesize (Multi-Label List)} \\
+            \textbullet\ Rhythm Style & \textit{\footnotesize (Single-Label)} \\
+            \textbullet\ Structure & \textit{\footnotesize (Single-Label)} \\
+            \textbullet\ Production & \textit{\footnotesize (Multi-Label List)} \\
+            \textbullet\ Dynamics & \textit{\footnotesize (Single-Label)}
+            \end{tabular}
+        };
+
+        \node[group, draw=rouge485, anchor=north west] (reg) at ($(md.south east) + (-2.5cm, -1cm)$) {
+            \textbf{\color{rouge485}5 Regression Attributes}\\
+            \medskip
+            \textit{\footnotesize Normalised Target Range: [0.0, 1.0]}\\
+            \medskip
+            \begin{tabular}{l}
+            \textbullet\ Energy Intensity \\
+            \textbullet\ Emotional Valence \\
+            \textbullet\ Tempo (50--180 BPM) \\
+            \textbullet\ Harmonic Tension \\
+            \textbullet\ Texture Density
+            \end{tabular}
+        };
+
+        \draw[arrow] (md.south west) -- (cat.north);
+        \draw[arrow] (md.south east) -- (reg.north);
+        
+    \end{tikzpicture}
+    \end{center}
 }
 
 \block{\textsc{Framework Architecture}}{
