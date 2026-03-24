@@ -22,7 +22,10 @@ class CogVideoX(nn.Module):
         prompt: str, 
         model_id: str = "THUDM/CogVideoX-5b-I2V",
         num_inference_steps: int = 50,
-        guidance_scale: float = 6.0
+        guidance_scale: float = 6.0,
+        fps: int = 12,
+        seed: int | None = None,
+        loop_video: bool = False,
     ):
         super().__init__()
         self.prompt = prompt
@@ -33,6 +36,9 @@ class CogVideoX(nn.Module):
         )
         self.num_inference_steps = num_inference_steps
         self.guidance_scale = guidance_scale
+        self.fps = fps
+        self.seed = seed
+        self.loop_video = loop_video
         
         self.pipe = CogVideoXImageToVideoPipeline.from_pretrained(
             model_id,
@@ -45,7 +51,7 @@ class CogVideoX(nn.Module):
         
         self.pipe.vae.enable_tiling()
 
-    def forward(self, image: Image.Image) -> list:
+    def forward(self, image: Image.Image, num_inference_steps: int | None = None) -> list:
         """
         Exécute la génération de la vidéo.
         Conformément à la contrainte, cette méthode ne prend en entrée que l'image.
@@ -57,18 +63,38 @@ class CogVideoX(nn.Module):
         Returns:
             list: Une liste d'images PIL représentant les frames de la vidéo générée.
         """
+        prompt = self.prompt
+        if self.loop_video:
+            prompt = f"{prompt}{self.loop_prompt_suffix}"
+
+        steps = num_inference_steps if num_inference_steps is not None else self.num_inference_steps
+
+        generator = None
+        if self.seed is not None:
+            generator = torch.Generator(device="cpu").manual_seed(self.seed)
+
         # Désactivation du calcul des gradients car nous sommes en phase d'inférence pure
         with torch.no_grad():
             result = self.pipe(
-                prompt=f"{self.prompt}{self.loop_prompt_suffix}",
+                prompt=prompt,
                 image=image,
-                num_inference_steps=self.num_inference_steps,
+                num_inference_steps=steps,
                 guidance_scale=self.guidance_scale,
-                # Fixation d'un générateur pour rendre la génération déterministe si besoin
-                generator=torch.Generator(device="cpu").manual_seed(42)
+                generator=generator,
             )
             
         return result.frames[0]
+
+    def generate_and_save(
+        self,
+        image: Image.Image,
+        output_path: str = "output_video.mp4",
+        num_inference_steps: int | None = None,
+    ) -> list:
+        """Generate a video from image and save it to disk."""
+        video_frames = self.forward(image=image, num_inference_steps=num_inference_steps)
+        export_to_video(video_frames, output_path, fps=self.fps)
+        return video_frames
 
 # ==========================================
 # Exemple d'utilisation
