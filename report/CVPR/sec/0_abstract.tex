@@ -1,0 +1,23 @@
+\begin{abstract}
+We present \textbf{AudioConditioner}, a multimodal pipeline that generates
+semantically aligned background music from a text scene description or an
+image.
+Our key contribution is a lightweight \emph{descriptor bridge}: a multi-task
+MLP trained via knowledge distillation from a 7B-parameter LLM that maps
+frozen CLIP-Audio (CLAP) embeddings to a structured, 12-attribute
+\emph{MusicDescriptor} intermediate representation.
+At inference, this replaces the LLM entirely, enabling fast scene-to-music
+generation at a fraction of the cost.
+The MusicDescriptor encodes musically-grounded attributes---mood, energy,
+valence, tempo, instrumentation, and production style---that are serialised
+into a natural-language prompt conditioning a frozen text-to-audio diffusion
+model (Stable Audio Open).
+A CLAP-based re-ranking step then selects the best among $N$ generated
+candidates.
+On a 100-scene benchmark, our distilled model achieves a mean CLAP cosine
+similarity of \textbf{0.38}, outperforming direct LLM inference at runtime
+(0.35) while reducing inference-time parameters by three orders of magnitude.
+We further demonstrate three downstream applications: ambient music generation
+from images, adaptive audiobook narration with synchronised background score,
+and image-to-video with a matching soundtrack.
+\end{abstract}

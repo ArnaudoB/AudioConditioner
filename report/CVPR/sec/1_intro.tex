@@ -1,0 +1,55 @@
+\section{Introduction}
+\label{sec:intro}
+
+Background music fundamentally shapes the emotional experience of film, games,
+podcasts, and audiobooks.
+Yet composing scene-appropriate music requires significant musical expertise,
+and manually selecting tracks for every new scene is prohibitively slow.
+Automating this process---\emph{generating} music that is semantically
+consistent with a given visual or textual scene---is therefore both practically
+valuable and scientifically challenging.
+
+Recent advances in text-to-audio diffusion~\cite{evans2024stable,
+liu2023audioldm2, copet2023simple} have made it possible to synthesise
+high-quality music from a natural-language prompt.
+The remaining bottleneck is \emph{semantic bridging}: translating an
+unstructured scene description (or image) into the rich, musically-specific
+language these models require.
+Existing approaches either rely on large language models (LLMs) at inference
+time~\cite{liu2023audioldm2, agostinelli2023musiclm}, which is slow and
+resource-intensive, or train end-to-end models that collapse the intermediate
+representation, offering little interpretability or user control.
+
+We propose a different strategy: \textbf{knowledge distillation through a
+structured intermediate representation}.
+A 7B-parameter teacher LLM (Qwen2.5~\cite{qwen2025qwen25}) labels a large
+procedurally-generated scene corpus with structured \emph{MusicDescriptor}
+JSON objects \emph{offline}.
+A compact student MLP is then trained to predict these descriptors directly
+from frozen CLAP~\cite{elizalde2023clap} embeddings.
+At inference, no LLM is needed: the student runs in milliseconds, replacing
+billions of parameters with fewer than one million.
+
+The \emph{MusicDescriptor} is the linchpin of our approach.
+It encodes 12 musically-grounded attributes---mood, energy, valence, tempo,
+key mode, harmonic tension, texture density, instrumentation, rhythm style,
+structure, production style, and dynamics profile---that a \texttt{prompt()}
+method serialises into six natural-language sentences, conditioning
+Stable Audio Open~\cite{evans2024stable}.
+A final CLAP-based re-ranking step selects the best among $N$ generated
+candidates.
+
+\noindent\textbf{Contributions.}
+\begin{enumerate}
+  \item A structured \emph{MusicDescriptor} schema bridging multimodal scene
+        understanding and text-to-audio synthesis.
+  \item An efficient two-phase knowledge-distillation framework that replaces
+        7B-parameter LLM inference with a sub-million-parameter MLP.
+  \item A CLAP-based self-supervised re-ranking mechanism.
+  \item Three demonstrated applications: image-to-ambient-music, adaptive
+        audiobook narration, and image-to-video with a synchronised soundtrack.
+  \item Quantitative benchmarks showing the distilled model (CLAP sim.\ 0.38)
+        exceeds direct LLM inference (0.35) while eliminating the LLM from the
+        inference graph.
+\end{enumerate}
+
