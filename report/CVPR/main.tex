@@ -2,7 +2,7 @@
 \documentclass[10pt,twocolumn,letterpaper]{article}
 
 % \usepackage{cvpr}              % camera-ready
-\usepackage[review]{cvpr}        % review version (with ruler)
+\usepackage{cvpr}        % review version (with ruler)
 % \usepackage[pagenumbers]{cvpr} % arXiv version
 
 \usepackage{graphicx}
@@ -41,24 +41,8 @@ Baptiste Arnaudo\\
 \begin{abstract}
 We present \textbf{AudioConditioner}, a multimodal pipeline that generates
 semantically aligned background music from a text scene description or an
-image.
-Our key contribution is a lightweight \emph{descriptor bridge}---a multi-task
-MLP trained via knowledge distillation from a 7B-parameter LLM---that maps
-frozen CLAP~\cite{elizalde2023clap} embeddings to a structured 12-attribute
-\emph{MusicDescriptor} intermediate representation.
-At inference, the LLM is replaced entirely, enabling fast scene-to-music
-generation at a fraction of the cost.
-The MusicDescriptor encodes musically-grounded attributes (mood, energy,
-valence, tempo, instrumentation, production style, and more) that are
-serialised into a natural-language prompt conditioning a frozen text-to-audio
-diffusion model (Stable Audio Open~\cite{evans2024stable}).
-A CLAP-based re-ranking step then selects the best among $N$ candidates.
-On a 100-scene benchmark, the distilled model achieves a mean CLAP cosine
-similarity of \textbf{0.38}, outperforming direct LLM inference at runtime
-(0.35) while reducing inference-time parameters by three orders of magnitude.
-We further demonstrate three downstream applications: ambient music from
-images, adaptive audiobook narration with a synchronised background score,
-and image-to-video with a matching soundtrack.
+image. Our key contribution is a lightweight \emph{descriptor bridge} -- a multi-task MLP trained via synthetic distillation from a 7B-parameter LLM -- that maps frozen CLAP~\cite{elizalde2023clap} embeddings to a structured 12-attribute \emph{MusicDescriptor} intermediate representation. At inference, the LLM is replaced entirely, enabling fast scene-to-music
+generation at a fraction of the cost. The MusicDescriptor encodes musically-grounded attributes (mood, energy, valence, tempo, instrumentation, production style, and more) that are serialised into a natural-language prompt conditioning a frozen text-to-audio diffusion model (Stable Audio Open~\cite{evans2024stable}). A CLAP-based re-ranking step then selects the best among $N$ candidates. On a 100-scene benchmark, the distilled model achieves a mean CLAP cosine similarity of \textbf{0.38}, outperforming direct LLM inference at runtime (0.35) while reducing inference-time parameters by three orders of magnitude. We further demonstrate three downstream applications: ambient music from images, adaptive audiobook narration with a synchronised background score, and image-to-video with a matching soundtrack.
 \end{abstract}
 
 % -----------------------------------------------------------------------
@@ -80,25 +64,18 @@ The remaining bottleneck is \emph{semantic bridging}: translating an
 unstructured scene description or image into the rich, musically-specific
 language these models require.
 Existing approaches either prompt a large LLM at every inference
-step~\cite{liu2023audioldm2, agostinelli2023musiclm}---slow and
-resource-intensive---or train end-to-end models that collapse the intermediate
+step~\cite{liu2023audioldm2, agostinelli2023musiclm} -- slow and
+resource-intensive -- or train end-to-end models that collapse the intermediate
 representation, sacrificing interpretability and user control.
 
 We propose a different strategy: \textbf{two-phase knowledge distillation
-through a structured intermediate representation}.
-In Phase~1, a 7B-parameter teacher LLM (Qwen2.5~\cite{qwen2025qwen25}) labels
-a large procedurally-generated scene corpus with structured
-\emph{MusicDescriptor} JSON objects \emph{offline}.
-In Phase~2, a tiny student MLP is trained to predict these descriptors from
-frozen CLAP embeddings.
-At inference, no LLM is needed: the student runs in milliseconds.
+through a structured intermediate representation}. In Phase~1, a 7B-parameter teacher LLM (Qwen2.5~\cite{qwen2025qwen25}) labels a large procedurally-generated scene corpus with structured \emph{MusicDescriptor} JSON objects \emph{offline}. In Phase~2, a tiny student MLP is trained to predict these descriptors from frozen CLAP embeddings. At inference, no LLM is needed: the student runs in milliseconds.
 
 The \emph{MusicDescriptor} is the linchpin of the approach.
 It encodes 12 musically-grounded attributes that a \texttt{prompt()} method
 serialises into six natural-language sentences, conditioning Stable Audio
 Open~\cite{evans2024stable}.
-This decomposition is \emph{interpretable}---each attribute can be inspected or
-manually overridden---and \emph{composable} across applications.
+This decomposition is \emph{interpretable} -- each attribute can be inspected or manually overridden -- and \emph{composable} across applications.
 
 \noindent\textbf{Contributions:}
 \begin{enumerate}
@@ -162,8 +139,8 @@ zero-shot evaluator for re-ranking and benchmarking.
 Given a text scene description (or an image first captioned by
 BLIP~\cite{li2022blip}), a frozen CLAP text encoder produces a 512-dimensional
 semantic embedding.
-This embedding is passed to the \emph{descriptor bridge}---the only trained
-component---which outputs a \emph{MusicDescriptor} object.
+This embedding is passed to the \emph{descriptor bridge} -- the only trained
+component -- which outputs a \emph{MusicDescriptor} object.
 The MusicDescriptor's \texttt{prompt()} method builds a natural-language music
 prompt, which conditions Stable Audio Open to generate $N$ candidate waveforms.
 Finally, a CLAP audio encoder re-ranks the candidates by cosine similarity
@@ -284,8 +261,8 @@ magnitude smaller than the 7B-parameter Qwen2.5 teacher.
 
 \subsection{Training}
 
-\paragraph{Phase~1 --- Procedural scene corpus.}
-The scene generator~\cite{github2025audioconditioner} constructs up to 160\,000
+\paragraph{Phase~1 -- Procedural scene corpus.}
+The scene generator constructs up to 160\,000
 short scenes by combining 20 characters $\times$ 20 characteristics $\times$
 20 settings $\times$ 21 events (\eg, \textit{``A driven monk inside a
 candlelit cathedral watches a kingdom fall''}).
@@ -293,13 +270,9 @@ Qwen2.5-7B-Instruct is prompted with a strict JSON schema and assigns a
 MusicDescriptor to each scene at temperature 0.2.
 The resulting dataset is stored as JSONL with $\sim$120\,000 valid entries.
 
-\paragraph{Phase~2 --- Novel chunk fine-tuning.}
-For the ReadMusic application, public-domain novels are chunked into ${\le}80$-word
-paragraphs.
-The teacher LLM is prompted again---now with narrative context from preceding
-chunks---to produce \emph{temporally coherent} MusicDescriptor sequences.
-Fine-tuning on these chunks produces a checkpoint that internalises emotional
-arc and narrative momentum.
+\paragraph{Phase~2 -- Novel chunk fine-tuning.}
+For the ReadMusic application, public-domain short stories such as Grimm's are chunked into ${\le}80$-word
+paragraphs. The teacher LLM is prompted again -- now with narrative context from preceding chunks -- to produce \emph{temporally coherent} MusicDescriptor sequences. Fine-tuning on these chunks produces a checkpoint that internalises emotional arc and narrative momentum.
 
 \paragraph{Loss.}
 The training loss sums per-attribute terms:
@@ -312,13 +285,20 @@ where $\mathcal{C}$ is the set of classification attributes and $\mathcal{R}$
 the regression attributes.
 The model is trained with Adam ($\eta{=}5{\times}10^{-4}$), batch size 64,
 for 50 epochs on an 80/20 train/val split.
-\Cref{fig:losses} shows convergence curves.
+\Cref{fig:train_loss} and \Cref{fig:validation_loss} show convergence curves.
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{../posters/avg_loss.png}
-  \caption{Training (orange) and validation (blue) loss curves over 50 epochs.}
-  \label{fig:losses}
+  \includegraphics[width=\linewidth]{figures/avg_loss.png}
+  \caption{Training loss curve over 50 epochs.}
+  \label{fig:train_loss}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/val_loss.png}
+  \caption{Validation loss curve over 50 epochs.}
+  \label{fig:validation_loss}
 \end{figure}
 
 \subsection{CLAP re-ranking}
@@ -330,8 +310,8 @@ Given $N$ generated waveforms $\{a_i\}$, the system selects
 \end{equation}
 where $s$ is the input scene text, $\phi_\text{txt}$ the CLAP text encoder,
 and $\phi_\text{aud}$ the CLAP audio encoder.
-This is a zero-cost quality improvement that leverages the same frozen model
-used during training, incurring no additional learned parameters.
+This is a quality improvement that leverages the same frozen model
+used during training, incurring no additional learned parameters. Its only cost is an increased inference time.
 
 % -----------------------------------------------------------------------
 \section{Experiments}
@@ -361,7 +341,7 @@ steps, 47-second clips) and CLAP evaluator to ensure a fair comparison.
 \Cref{tab:results} and \cref{fig:scores} summarise the benchmark results.
 AudioConditioner achieves a mean CLAP cosine similarity of \textbf{0.38},
 outperforming the LLM baseline (0.35) by $+0.03$ absolute and far exceeding
-the random baseline (0.15).
+the random baseline (0.27).
 
 \begin{table}[t]
 \caption{CLAP cosine similarity on the 100-scene benchmark (higher is better).
@@ -372,7 +352,7 @@ The distilled model outperforms the 7B-parameter LLM baseline at inference time.
 \toprule
 Method & Mean sim. & $\Delta$ vs.\ LLM \\
 \midrule
-Random baseline              & 0.15 & $-$0.20 \\
+Random baseline              & 0.27 & $-$0.08 \\
 LLM baseline (Qwen2.5-7B)   & 0.35 & \phantom{$+$}--- \\
 \textbf{AudioConditioner}    & \textbf{0.38} & $+$0.03 \\
 \bottomrule
@@ -381,7 +361,7 @@ LLM baseline (Qwen2.5-7B)   & 0.35 & \phantom{$+$}--- \\
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=\linewidth]{../posters/score_distributions.png}
+  \includegraphics[width=1.1\linewidth]{figures/score_distributions.png}
   \caption{Distribution of per-scene CLAP cosine similarities.
   AudioConditioner (orange) is consistently higher than the LLM baseline
   (blue) and the random baseline (green).}
@@ -398,7 +378,7 @@ The student, by contrast, learned a mapping from CLAP embedding space that is
 directly optimised for the distribution of scenes in the dataset, and the CLAP
 re-ranking further steers the output towards semantically aligned audio.
 
-The large gap over the random baseline (0.38 vs.\ 0.15) confirms that the
+The large gap over the random baseline (0.38 vs.\ 0.27) confirms that the
 MusicDescriptor schema successfully encodes musically-relevant semantic
 information, and that Stable Audio Open responds meaningfully to the attributes
 provided.
@@ -449,9 +429,7 @@ Three downstream applications demonstrate the composability of the approach
 for image-to-music, narrated audiobooks, and image-to-video.
 
 Future work includes reinforcement learning with human feedback on the
-generated audio quality, fine-tuning Stable Audio Open end-to-end with the
-descriptor supervision signal, and extending the MusicDescriptor to
-time-varying attributes for longer-form adaptive scoring.
+generated audio quality or with CLAP's cosine similarity as reward, fine-tuning Stable Audio Open end-to-end with the descriptor supervision signal, and extending the MusicDescriptor to time-varying attributes for longer-form adaptive scoring.
 
 % -----------------------------------------------------------------------
 {
@@ -459,5 +437,124 @@ time-varying attributes for longer-form adaptive scoring.
   \bibliographystyle{ieeenat_fullname}
   \bibliography{main}
 }
+
+% -----------------------------------------------------------------------
+\appendix
+
+\section{Application I: Image-to-Ambient Music}
+\label{app:image_music}
+
+Given a single still image, AudioConditioner generates a semantically aligned ambient soundtrack without any user-provided text.
+The pipeline proceeds as follows:
+
+\begin{enumerate}
+  \item \textbf{Scene extraction.} BLIP~\cite{li2022blip} captions the image, automatically identifying dominant elements -- colors, objects, spatial composition, and atmosphere.
+  \item \textbf{Descriptor prediction.} The caption is encoded by the frozen CLAP text encoder into a 512-d embedding, which is passed to the student descriptor bridge to produce a \emph{MusicDescriptor}.
+  \item \textbf{Audio generation and re-ranking.} The MusicDescriptor's \texttt{prompt()} method constructs a natural-language conditioning string for Stable Audio Open, which generates $N$ candidate waveforms. The CLAP re-ranker selects the candidate with highest cosine similarity to the original image caption.
+\end{enumerate}
+
+This pipeline is entirely zero-shot and runs on a single consumer GPU, enabling automated soundtrack generation for static artwork, game environments, and visual media.
+
+\section{Application II: Adaptive Audiobook Narration (ReadMusic)}
+\label{app:readmusic}
+
+The \textbf{ReadMusic} module produces narrated audiobooks with a continuously adaptive background score.
+\Cref{fig:readmusic_pipeline} illustrates the per-chunk processing loop.
+
+\begin{figure}[h]
+\centering
+\scalebox{0.75}{%
+\begin{tikzpicture}[
+    node distance=0.9cm and 0.8cm,
+    box/.style={rectangle, draw=black, thick, fill=blue!10,
+                text width=3.2cm, align=center, rounded corners,
+                minimum height=0.8cm, font=\small},
+    arrow/.style={-{Stealth[length=4pt]}, thick}
+]
+    \node[box, fill=green!15] (input) {Input Narrative Text};
+    \node[box] (chunking) [below=of input] {Text Chunking\\($\le$80 words/chunk)};
+
+    \node[box, fill=purple!15] (tts) [below left=1.1cm and 0cm of chunking]
+        {\textbf{F5-TTS}\\Speech synthesis\\resample to 48\,kHz};
+    \node[box, fill=orange!15] (ac) [below right=1.1cm and 0cm of chunking]
+        {\textbf{AudioConditioner}\\Music generation\\match duration};
+
+    \node[box] (mixer) [below=3.0cm of chunking]
+        {Length matching \& mixing\\(speech gain / music gain)};
+    \node[box, fill=yellow!15] (fade) [below=of mixer] {Cross-fade appending};
+    \node[box, fill=green!15] (output) [below=of fade] {Merged audio output};
+
+    \draw[arrow] (input) -- (chunking);
+    \draw[arrow] (chunking.south) -- ++(0,-0.5) -| (tts.north);
+    \draw[arrow] (chunking.south) -- ++(0,-0.5) -| (ac.north);
+    \draw[arrow] (tts.south) |- (mixer.west);
+    \draw[arrow] (ac.south) |- (mixer.east);
+    \draw[arrow] (mixer) -- (fade);
+    \draw[arrow] (fade) -- (output);
+\end{tikzpicture}}
+\caption{ReadMusic per-chunk pipeline. Speech and music are generated in
+parallel per chunk, mixed with fixed gains, and appended with a short
+crossfade to produce a continuous narrated audiobook.}
+\label{fig:readmusic_pipeline}
+\end{figure}
+
+The narrative is split at natural boundaries (punctuation, newlines) into chunks of at most 80~words -- imposed by Stable Audio Open's 47-second generation ceiling.
+For each chunk, F5-TTS synthesis and AudioConditioner music generation run concurrently.
+The resulting waveforms are zero-padded to equal length, multiplied by configurable speech and music gains, and concatenated with a short crossfade to avoid abrupt transitions between chunks.
+For long-form narratives (\eg Grimm's fairy tales), the Phase-2 fine-tuned checkpoint is used so that consecutive MusicDescriptor predictions maintain a temporally coherent emotional arc.
+
+\section{Application III: Image-to-Video with Soundtrack}
+\label{app:video}
+
+\texttt{video\_sound.py} creates a short cinematic clip with a synchronized score from a single input image.
+The two generation streams run in \textbf{parallel} (\cref{fig:video_pipeline}):
+
+\begin{figure}[h]
+\centering
+\scalebox{0.75}{%
+\begin{tikzpicture}[
+    node distance=1.0cm and 0.5cm,
+    box/.style={rectangle, draw=black, thick, fill=blue!10,
+                text width=3.0cm, align=center, rounded corners,
+                minimum height=0.8cm, font=\small},
+    arrow/.style={-{Stealth[length=4pt]}, thick}
+]
+    \node[box, fill=green!15] (img) {\textbf{Source Image}};
+
+    \node[box, fill=teal!15] (vid)  [below left=1.1cm and 0cm of img]
+        {CogVideoX\\image animation};
+    \node[box, fill=orange!15] (aud) [below right=1.1cm and 0cm of img]
+        {AudioConditioner\\music generation};
+
+    \node[box] (vf) [below=of vid]  {Silent \texttt{output.mp4}};
+    \node[box] (af) [below=of aud]  {Score \texttt{output.wav}};
+
+    \node[box, fill=red!10] (ffmpeg) [below=4.2cm of img]
+        {FFmpeg multiplexing};
+    \node[box, fill=green!15] (final) [below=of ffmpeg]
+        {Final synced video};
+
+    \draw[arrow] (img.south) -- ++(0,-0.5) -| (vid.north);
+    \draw[arrow] (img.south) -- ++(0,-0.5) -| (aud.north);
+    \draw[arrow] (vid) -- (vf);
+    \draw[arrow] (aud) -- (af);
+    \draw[arrow] (vf.south)  |- (ffmpeg.west);
+    \draw[arrow] (af.south)  |- (ffmpeg.east);
+    \draw[arrow] (ffmpeg) -- (final);
+\end{tikzpicture}}
+\caption{Image-to-video pipeline. CogVideoX animates the image while
+AudioConditioner generates a matching score; FFmpeg muxes the two streams
+into a final video file.}
+\label{fig:video_pipeline}
+\end{figure}
+
+\begin{enumerate}
+  \item \textbf{Image animation.} CogVideoX~\cite{yang2024cogvideox} (image-to-video diffusion) generates a short silent clip from the input image. As an open-weight model, video quality is limited but sufficient as a proof-of-concept.
+  \item \textbf{Score generation.} AudioConditioner simultaneously processes the same image through BLIP captioning, descriptor prediction, and Stable Audio Open synthesis to produce a matching audio waveform.
+  \item \textbf{Multiplexing.} FFmpeg muxes the silent video and the generated audio into a single file, trimming or padding to a common duration.
+\end{enumerate}
+
+No additional training is required; the two generative pipelines operate independently and are combined purely at the file level.
+Visible artifacts in the animated video are expected at the current open-weight model scale; audio quality is markedly higher and constitutes the primary perceptual contribution of the application.
 
 \end{document}
