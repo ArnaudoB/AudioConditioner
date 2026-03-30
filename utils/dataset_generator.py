@@ -44,7 +44,7 @@ def teacher(scene_text: str, max_new_tokens: int = 320, temperature: float = 0.2
         eos_token_id=tokenizer.eos_token_id,
     )
 
-    gen_tokens = out[0, inputs["input_ids"].shape[1]:]   # only new tokens   # only new tokens
+    gen_tokens = out[0, inputs["input_ids"].shape[1]:]   # only new tokens
     response = tokenizer.decode(gen_tokens, skip_special_tokens=True).strip()
     return response
 
@@ -80,13 +80,3 @@ def main(path_to_scenes="./data/generated_scenes.txt", out_path="./data/teacher_
             f.write(orjson.dumps(record))
             f.write(b"\n")
 
-if __name__ == "__main__":
-    # Load teacher model
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID, use_fast=True)
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_ID,
-        device_map="auto",
-        dtype=torch.float16
-    )
-    model.eval()
-    main(tokenizer=tokenizer, model=model)

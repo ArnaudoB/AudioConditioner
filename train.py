@@ -1,13 +1,14 @@
+"""Training script for the TwoDeepDescriptor student model with W&B logging."""
+
 import torch
-import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
 from tqdm import tqdm
-from models.Descriptor import Descriptor, OneDeepDescriptor, TwoDeepDescriptor
+from models.Descriptor import TwoDeepDescriptor
 from models.CLAPModel import CLAPModel
 from utils.dataset import MusicDataset, EmbeddingDataset
-from utils.loss import MSEMusicDescriptorLoss, AdaptedMusicDescriptorLoss
+from utils.loss import AdaptedMusicDescriptorLoss
 import wandb
 from datetime import datetime
 
@@ -80,9 +81,7 @@ def main(lr=0.001, num_epochs=10, batch_size=32):
 
     # Initialize model, criterion and optimizer
     model = TwoDeepDescriptor(clap_dim=512, backbone_dim=256).to(device)
-    #loaded_state_dict = torch.load(SCENE_CHECKPOINT, map_location=device)
-    #model.load_state_dict(loaded_state_dict)
-    criterion = AdaptedMusicDescriptorLoss() #Weights can be added
+    criterion = AdaptedMusicDescriptorLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     # Train the model

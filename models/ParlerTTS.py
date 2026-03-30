@@ -99,25 +99,4 @@ class ParlerTTS(torch.nn.Module):
         return str(path)
 
 
-if __name__ == "__main__":
-    demo_text = (
-        "The rain tapped softly against the library window while she turned the final page. "
-        "A quiet breath escaped her lips, and the old clock marked midnight in the hall. "
-        "In that stillness, every memory felt alive again."
-    )
-
-    model = ParlerTTS()
-    output_file = "sounds/parler_tts_novel_demo.wav"
-
-    try:
-        print(f"Using TTS model: {model.active_model_id}")
-        saved_path = model.synthesize_to_file(
-            prompt=demo_text,
-            output_path=output_file,
-        )
-        print(f"Demo generated successfully: {saved_path}")
-    except Exception as exc:  # noqa: BLE001
-        print(f"Demo generation failed: {exc}")
-
-
 

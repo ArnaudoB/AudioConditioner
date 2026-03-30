@@ -3,10 +3,7 @@ from PIL import Image
 from transformers import AutoProcessor, BlipForConditionalGeneration
 
 class BLIPModel(torch.nn.Module):
-    """
-    Modèle de description d'image utilisant BLIP.
-    Génère une phrase complète décrivant l'image fournie.
-    """
+    """Image captioning model using BLIP. Generates a descriptive sentence for a given image."""
     def __init__(self, 
                  model_id="Salesforce/blip-image-captioning-base",
                  prompt="a picture of "): 
@@ -30,12 +27,3 @@ class BLIPModel(torch.nn.Module):
         result = result[len(self.prompt):] if result.startswith(self.prompt) else result
             
         return result
-
-if __name__ == "__main__":
-    blip_model = BLIPModel()
-    
-    image = Image.open("pictures/images.jpeg")
-    image.show()
-    
-    caption = blip_model(image)
-    print("Generated caption:", caption)

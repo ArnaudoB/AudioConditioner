@@ -1,8 +1,3 @@
-import sys
-import os
-# Add parent directory to Python path to import utils
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from typing import List, Union
 import json
 import torch
@@ -341,13 +336,6 @@ class MusicDescriptor:
             sentence += "."
             sentences.append(sentence)
         
-        # Sentence 7: constraints
-        sentence = ""
-        
-        if sentence:
-            sentence += "."
-            sentences.append(sentence)
-        
         return " ".join(sentences).strip()
     
 
@@ -363,14 +351,3 @@ def read_music_descriptor_from_json(json_str: str) -> tuple[str, MusicDescriptor
     descriptor.pop("tempo_bpm", None)
     descriptor.pop("duration_s", None)
     return scene, MusicDescriptor(**descriptor)
-
-if __name__ == "__main__":
-    # Exemple d'utilisation
-    dataset_path = "data/teacher_dataset.jsonl"
-    with open(dataset_path, "r") as f:
-        first_line = f.readline()
-    scene, descriptor = read_music_descriptor_from_json(first_line)
-    print(f"Scene: {scene}")
-    print(f"Generated Prompt: {descriptor.prompt()}")
-    print(f"Generated Negative Prompt: {descriptor.negative_prompt()}")
-    print(f"Differentiable Tensor: {descriptor.to_differentiable_tensor()}")

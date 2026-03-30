@@ -32,6 +32,7 @@ class MusicDataset(Dataset):
     
 
 class EmbeddingDataset(Dataset):
+    """Wraps MusicDataset by pre-computing CLAP embeddings for each scene at access time."""
 
     def __init__(self, music_dataset: MusicDataset, embedding_model, device=None):
         self.music_dataset = music_dataset
@@ -44,24 +45,3 @@ class EmbeddingDataset(Dataset):
         scene, descriptor = self.music_dataset[idx]
         embedding, _ = self.embedding_model(texts=[scene], audio_waveforms=None)
         return embedding.squeeze(0), descriptor.to_differentiable_tensor(device=self.device)
-    
-
-        
-if __name__ == "__main__":
-    import sys
-    import os
-    # Add parent directory to Python path to import utils
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from models.CLAPModel import CLAPModel
-
-
-    dataset = MusicDataset('data/teacher_dataset.jsonl')
-    print(len(dataset))
-    for i in range(5):
-        scene, music = dataset[i]
-        print(scene, music.prompt())
-
-    embedding_dataset = EmbeddingDataset(dataset, embedding_model=CLAPModel())
-    for i in range(5):
-        embedding, descriptor = embedding_dataset[i]
-        print(embedding.shape, descriptor.prompt())

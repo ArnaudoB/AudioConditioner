@@ -96,22 +96,3 @@ class CogVideoX(nn.Module):
         export_to_video(video_frames, output_path, fps=self.fps)
         return video_frames
 
-# ==========================================
-# Exemple d'utilisation
-# ==========================================
-if __name__ == "__main__":
-    # 1. Instanciation (le modèle est téléchargé et le prompt est fixé ici)
-    prompt_texte = (
-        "A photorealistic tracking shot of the subject in the image moving slowly, "
-        "cinematic lighting, 4k, seamless looping animation."
-    )
-    model = CogVideoX(prompt=prompt_texte)
-    
-    # 2. Chargement de l'image (l'image doit être au format approprié, ex: 720x480)
-    input_image = Image.open("pictures/skyrim.jpg").convert("RGB")
-    
-    # 3. Appel de la méthode forward (ne prend que l'image)
-    video_frames = model(input_image)
-    
-    # 4. Sauvegarde
-    export_to_video(video_frames, "output_video.mp4", fps=8)

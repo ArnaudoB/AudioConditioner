@@ -1,11 +1,12 @@
 import torch
 from torch import nn
-import numpy as np
 from diffusers import DiffusionPipeline, UNetSpatioTemporalConditionModel, BitsAndBytesConfig
-from diffusers.utils import load_image, export_to_video
+from diffusers.utils import export_to_video
 
 class Img2VSDModel(nn.Module):
-    def __init__(self, model_id: str = "stabilityai/stable-video-diffusion-img2vid-xt", 
+    """Stable Video Diffusion wrapper for image-to-video generation (alternative to CogVideoX)."""
+
+    def __init__(self, model_id: str = "stabilityai/stable-video-diffusion-img2vid-xt",
                  device: str = "cuda",
                  use_4bit: bool = False):
         super().__init__()
@@ -73,16 +74,3 @@ class Img2VSDModel(nn.Module):
         return video_frames
 
 
-if __name__ == "__main__":
-    # Example: Animate an image with Stable Video Diffusion
-    
-    # Initialize the model
-    model = Img2VSDModel()
-    
-    # Load the image
-    image_path = "pictures/skyrim.jpg"
-    image = load_image(image_path)
-    
-    # Generate animation and save to video
-    output_path = "sounds/animated_video.mp4"
-    model.generate_and_save(image, output_path, num_inference_steps=25)

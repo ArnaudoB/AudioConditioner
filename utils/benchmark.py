@@ -1,3 +1,5 @@
+"""Benchmarking: compares CLAP cosine similarity across generation methods (LLM, random, AudioConditioner)."""
+
 import json
 
 from dataset_short_stories import generate_chunks
@@ -17,10 +19,12 @@ from teaching_utils import MOOD_LIST, INSTRUMENTATION_LIST, RHYTHM_STYLE_LIST, S
 import matplotlib.pyplot as plt
 
 def benchmark_chunk_generation(path, output_path, max_chunk_size):
+    """Generate text chunks from short stories for evaluation."""
     generate_chunks(path=path, output_path=output_path, max_chunk_size=max_chunk_size)
 
 
 def scores_llm_generation(path_to_chunks, save_path="./report/llm_generation_scores.json"):
+    """Evaluate CLAP cosine similarity using teacher LLM-generated music descriptors."""
     clap = CLAPModel()
     audio_gen_model = StableAudioModel(num_inference_steps=50, num_waveforms_per_prompt=1, seed=42)
     clap.eval()
@@ -68,6 +72,7 @@ def scores_llm_generation(path_to_chunks, save_path="./report/llm_generation_sco
     return scores
 
 def scores_random_generation(path_to_chunks, save_path="./report/random_generation_scores.json"):
+    """Evaluate CLAP cosine similarity using randomly sampled music descriptors (baseline)."""
     clap = CLAPModel()
     audio_gen_model = StableAudioModel(num_inference_steps=50, num_waveforms_per_prompt=1, seed=42)
     clap.eval()
@@ -107,6 +112,7 @@ def scores_random_generation(path_to_chunks, save_path="./report/random_generati
 
 
 def scores_audio_conditioner_generation(path_to_chunks, path_to_ac_weights="./saves/model_checkpoint.pt", save_path="./report/ac_generation_scores.json"):
+    """Evaluate CLAP cosine similarity using the trained AudioConditioner pipeline."""
     audio_gen_model = StableAudioModel(num_inference_steps=50, num_waveforms_per_prompt=1, seed=42)
     descriptor = TwoDeepDescriptor(clap_dim=512, backbone_dim=256)
     descriptor.load_state_dict(torch.load(path_to_ac_weights)) # Load the trained weights of the descriptor
@@ -133,6 +139,7 @@ def scores_audio_conditioner_generation(path_to_chunks, path_to_ac_weights="./sa
 
 
 def plot_score_distributions(llm_scores_path="./report/llm_generation_scores.json", random_scores_path="./report/random_generation_scores.json", ac_scores_path="./report/ac_generation_scores.json", save_path="./report/score_distributions.png"):
+    """Plot histograms comparing cosine similarity distributions across generation methods."""
     with open(llm_scores_path, 'r', encoding='utf-8') as f:
         llm_scores = json.load(f)
     with open(random_scores_path, 'r', encoding='utf-8') as f:
@@ -158,10 +165,5 @@ def plot_score_distributions(llm_scores_path="./report/llm_generation_scores.jso
     print(f"LLM Generation - Mean Cosine Similarity Score: {sum(llm_dissimilarity_scores)/len(llm_dissimilarity_scores):.4f}")
     print(f"Random Generation - Mean Cosine Similarity Score: {sum(random_dissimilarity_scores)/len(random_dissimilarity_scores):.4f}")
     print(f"AudioConditioner Generation - Mean Cosine Similarity Score: {sum(ac_dissimilarity_scores)/len(ac_dissimilarity_scores):.4f}")
-
-if __name__ == "__main__":
-    plot_score_distributions(llm_scores_path="./report/llm_generation_scores.json", random_scores_path="./report/random_generation_scores.json", ac_scores_path="./report/ac_generation_scores.json", save_path="./report/score_distributions.png")
-
-
 
 

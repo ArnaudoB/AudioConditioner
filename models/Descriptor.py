@@ -1,7 +1,3 @@
-import sys
-import os
-# Add parent directory to Python path to import utils
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -127,7 +123,7 @@ class Descriptor(nn.Module):
                 indices = [torch.argmax(probs).item()]
                 print(f"Warning: No classes for attribute '{attribute}' above top_p threshold. Defaulting to class with highest probability: {globals()[f'{attribute.upper()}_LIST'][indices[0]]}")
             else:
-                indices = torch.where(probs > top_p)[0] # NE MARCHE PAS S'IL N'Y A PAS DE CLASSES AU-DESSUS DU SEUIL top_p, IL FAUT GÉRER CE CAS
+                indices = torch.where(probs > top_p)[0]
             labels = [globals()[f"{attribute.upper()}_LIST"][i] for i in indices]
             output[attribute] = labels
 
@@ -265,25 +261,3 @@ class TwoDeepDescriptor(Descriptor):
         )
 
 
-def test():
-    model = OneDeepDescriptor(clap_dim=512, backbone_dim=256)
-    x = torch.randn(1, 512)  # Simulated CLAP features
-    output = model.forward(x)
-    music_descriptor = model.generate_music_descriptor(x, top_p=0.05)
-    diff_tensor = music_descriptor.to_differentiable_tensor()
-
-    for attribute, value in output.items():
-        print("\n")
-        print(f"{attribute}: {value}")
-        print(f"{attribute} (post-processed): {getattr(music_descriptor, attribute)}")
-        print(f"{attribute} (differentiable tensor): {diff_tensor[attribute]}")
-
-    import utils.loss
-    criterion = utils.loss.MSEMusicDescriptorLoss()
-    print("\nLoss:", criterion(output, diff_tensor))
-    print("0 Loss:", criterion(diff_tensor, diff_tensor))  # Loss between the same descriptor should be 0
-
-if __name__ == "__main__":
-
-        
-    test()

@@ -54,22 +54,3 @@ class AudioConditioner(nn.Module):
         dissimilarity_score = dissimilarity_score[sorted_indices]
 
         return generated_audio, music_descriptor, dissimilarity_score
-
-if __name__ == "__main__":
-
-    from StableAudioModel import StableAudioModel
-    from BLIPModel import BLIPModel
-    from CLAPModel import CLAPModel
-    from Descriptor import OneDeepDescriptor
-
-    audio_gen_model = StableAudioModel(num_inference_steps=50, num_waveforms_per_prompt=3, seed=42)
-    descriptor = OneDeepDescriptor(clap_dim=512, backbone_dim=256)
-    blip_model = BLIPModel()
-    clap_model = CLAPModel()
-
-    conditioner = AudioConditioner(audio_gen_model, descriptor, blip_model, clap_model)
-
-    sample_text = "Brutus prepares to fight against Caesar in the Roman Forum, with a tense and dramatic atmosphere."
-    generated_audio, music_descriptor, dissimilarity_score = conditioner(sample_text, input_type="text", audio_end_in_s=30.0, num_waveforms_per_prompt=1, num_inference_steps=50)
-    print("Generated audio shape:", generated_audio.shape)
-    print("Dissimilarity score:", dissimilarity_score)

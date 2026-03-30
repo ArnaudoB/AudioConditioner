@@ -1,4 +1,3 @@
-import argparse
 from pathlib import Path
 import re
 from typing import Any, Dict, Optional, Tuple
@@ -271,49 +270,3 @@ class ReadMusic(nn.Module):
         path.parent.mkdir(parents=True, exist_ok=True)
         wav_write(str(path), result["sample_rate"], merged_int16)
         return str(path)
-
-if __name__ == "__main__":
-    from AudioConditioner import AudioConditioner
-    from BLIPModel import BLIPModel
-    from CLAPModel import CLAPModel
-    from Descriptor import TwoDeepDescriptor
-    from StableAudioModel import StableAudioModel
-    from T5TTS import T5TTS
-
-    print("Paste your story below. Press Enter on an empty line to run generation.")
-    lines = []
-    while True:
-        line = input()
-        if line == "":
-            break
-        lines.append(line)
-
-    story = "\n".join(lines).strip()
-    if not story:
-        raise ValueError("Empty story: please type at least one non-empty line.")
-
-    print("Loading real models (this can take time)...")
-    clap_model = CLAPModel()
-    music_prompter = TwoDeepDescriptor(clap_dim=512, backbone_dim=256, top_p=0.1)
-    music_prompter.load_state_dict(torch.load(CHUNKS_CHECKPOINT, map_location=torch.device("cpu")))
-    stable_audio = StableAudioModel()
-    blip_model = BLIPModel()
-    audio_conditioner = AudioConditioner(stable_audio, music_prompter, blip_model, clap_model)
-    ref_audio = "sounds/reference_story.wav"  
-    ref_text = "Three mounth later, Leningrad was officially renamed Saint Petersburg."  
-    tts = T5TTS(ref_audio=ref_audio, ref_text=ref_text)
-
-    model = ReadMusic(
-        audio_conditioner=audio_conditioner,
-        tts_model=tts,
-        target_sample_rate=48000,
-    )
-
-    print("Generating merged narration + music...")
-    saved_path = model.synthesize_to_file(
-        text=story,
-        output_path="sounds/result.wav",
-    )
-
-    print("Full pipeline test passed.")
-    print("Output file:", saved_path)

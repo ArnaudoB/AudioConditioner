@@ -1,3 +1,5 @@
+"""Utilities for splitting short stories into fixed-size word chunks and labelling them."""
+
 import os
 from dataset_generator import label_scene
 from tqdm import tqdm
@@ -5,6 +7,7 @@ import orjson
 import torch
 
 def generate_chunks(path="./data/short_stories", output_path="./data/chunks", max_chunk_size=100):
+    """Split each story file into chunks of at most max_chunk_size words."""
     os.makedirs(output_path, exist_ok=True)
     for short_story in os.listdir(path):
         with open(os.path.join(path, short_story), 'r', encoding='utf-8') as f:

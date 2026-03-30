@@ -1,5 +1,4 @@
 import torch
-import soundfile as sf
 from diffusers import BitsAndBytesConfig as DiffusersBitsAndBytesConfig, StableAudioDiTModel, StableAudioPipeline
 from transformers import BitsAndBytesConfig as BitsAndBytesConfig, T5EncoderModel
 from typing import List, Union
@@ -90,43 +89,4 @@ class StableAudioModel(torch.nn.Module):
             return self.generate_audio_batch(prompt, negative_prompt)
         else:
             return self.generate_audio(prompt, negative_prompt, audio_end_in_s, num_waveforms_per_prompt, num_inference_steps)
-        
-    
-if __name__ == "__main__":
-    conditioner = StableAudioModel()
-    
-    # Exemple 1: Prompt unique (comportement original)
-    #scene = A driven monk inside a candlelit cathedral watches a kingdom fall
-    prompt = "Cinematic music. Tragic, ominous mood, negative/sad music, energetic, with a layered texture. Featuring strings, timpani, cinematic percussion. Tempo around 90 BPM, with a steady rhythm. In a minor key, with a very dissonant tension. The structure is slow build then climax, with a gradual crescendo. Duration around 30 seconds."
-    negative_prompt = "Low quality."
-    audio = conditioner(prompt, 
-                       negative_prompt=negative_prompt, 
-                       audio_end_in_s=30.0,
-                       num_waveforms_per_prompt=1,
-                       seed=42,
-                       num_inference_steps=50)
-    output = audio[0].T.float().cpu().numpy()
-    sf.write("sounds/test_50.wav", output, conditioner.pipeline.vae.sampling_rate)
-    
-    # Exemple 2: Plusieurs prompts en parallèle (batch processing)
-    prompts = [
-        "The sound of rain on a window",
-        "A cat meowing softly",
-        "Ocean waves crashing on the shore"
-    ]
-    negative_prompts = ["Low quality."] * len(prompts)  # Même negative prompt pour tous
-    
-    print("Génération de plusieurs audios en batch...")
-    audios_batch = conditioner(prompts, 
-                              negative_prompt=negative_prompts,
-                              audio_end_in_s=30.0,
-                              num_waveforms_per_prompt=1,
-                              seed=42,
-                              num_inference_steps=100,
-                              )  # Utilise le batch processing
-    
-    # Sauvegarder chaque audio
-    for i, audio in enumerate(audios_batch):
-        output = audio.T.float().cpu().numpy()
-        sf.write(f"sounds/audio_batch_{i}.wav", output, conditioner.pipeline.vae.sampling_rate)
     

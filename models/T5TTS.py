@@ -1,4 +1,3 @@
-from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Optional, Tuple
 
@@ -87,21 +86,3 @@ class T5TTS(torch.nn.Module):
         waveform_int16 = (waveform * 32767.0).astype(np.int16)
         wav_write(str(path), sample_rate, waveform_int16)
         return str(path)
-
-
-if __name__ == "__main__":
-
-
-    prompt = "A king and queen once upon a time reigned in a country a great way off, where there were in those days fairies. Now this king and queen had plenty of money, and plenty of fine clothes to wear, and plenty of good things to eat and drink, and a coach to ride out in every day: but though they had been married many years they had no children, and this grieved them very much indeed. But one day as the queen was walking by the side of the river, at the bottom of the garden, she saw a poor"
-    ref_audio = "sounds/reference_story.mp3"  # Or provide a path to a reference audio file
-    ref_text = "Walter also designed mansions, banks, churches, the hotel at Brandywine Springs, and courthouses."   # Or provide reference text describing the voice
-    output_file = "demo_output.wav"
-    model = T5TTS(
-        ref_audio=ref_audio,
-        ref_text=ref_text
-    )
-    saved_path = model.synthesize_to_file(
-        prompt=prompt,
-        output_path=output_file,
-    )
-    print(f"Demo generated successfully: {saved_path}")

@@ -1,13 +1,5 @@
-import sys
-import os
-# Add parent directory to Python path to import utils
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-
 import torch.nn as nn
-import torch
-from utils.music_descriptor import MusicDescriptor
-from utils.music_descriptor import ATTRIBUTES_THAT_ARE_LISTS, REGRESSION_ATTRIBUTES, CLASSIFICATION_ATTRIBUTES
+from utils.music_descriptor import REGRESSION_ATTRIBUTES, CLASSIFICATION_ATTRIBUTES
 
 class MSEMusicDescriptorLoss(nn.Module):
     """Simple MSE loss for music descriptors. This can be extended to include weighting for different attributes or to handle missing attributes more gracefully.

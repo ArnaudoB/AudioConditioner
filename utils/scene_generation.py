@@ -150,6 +150,3 @@ def generate_scene(N: int,
                 f.write(scene + "\n")
 
     return list(scenes)
-
-if __name__ == "__main__":
-    generated_scenes = generate_scene(2000, seed=42, output_file="./data/generated_scenes.txt")

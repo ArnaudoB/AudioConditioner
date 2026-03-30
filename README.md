@@ -90,6 +90,7 @@ AudioConditioner/
 
 - Python 3.10+
 - CUDA GPU recommended (Stable Audio + CogVideoX are GPU-intensive)
+- `ffmpeg` installed and on PATH (required by `video_sound.py` for audio/video muxing)
 
 ### Installation
 
@@ -190,9 +191,25 @@ Splits a long story into sentence-level chunks, generates a music descriptor per
 | Music generation | Stable Audio Open (`stabilityai/stable-audio-open-1.0`) |
 | Teacher LLM | Qwen2.5-7B-Instruct |
 | Video generation | CogVideoX |
-| TTS | F5-TTS / T5 |
+| TTS | F5-TTS / ParlerTTS |
 | Training | PyTorch + W&B |
 | Demos | Streamlit |
+
+---
+
+## Results
+
+The benchmark evaluates three music generation strategies on 100 held-out story chunks. Each generated audio clip is scored by computing the **CLAP cosine similarity** between the scene text embedding and the generated audio embedding (higher = more semantically aligned).
+
+| Method | Mean | Median | Std |
+|---|---|---|---|
+| **AudioConditioner** (ours) | **0.381** | **0.383** | 0.087 |
+| LLM baseline (Qwen2.5-7B) | 0.350 | 0.355 | 0.098 |
+| Random baseline | 0.320 | 0.319 | 0.118 |
+
+- AudioConditioner outperforms the LLM baseline by **+8.9%** in mean similarity while also being **more consistent** (lower variance).
+- The LLM baseline itself outperforms random generation by +9.4%, confirming that structured music descriptors matter.
+- Raw scores and distribution plots are in [`report/posters/`](./report/posters/).
 
 ---
 

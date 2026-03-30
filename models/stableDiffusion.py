@@ -4,6 +4,8 @@ from torch import nn
 
 
 class StableDiffusionModel(nn.Module):
+    """Wrapper around Stable Diffusion for text-to-image generation."""
+
     def __init__(self, model_id: str = "runwayml/stable-diffusion-v1-5", device: str = "cuda"):
         super().__init__()
         self.model_id = model_id
@@ -27,8 +29,3 @@ class StableDiffusionModel(nn.Module):
         image.save(output_path)
         print(f"Image saved to {output_path}")
         return image
-
-if __name__ == "__main__":
-    model = StableDiffusionModel()
-    prompt = "A beautiful landscape with mountains and sunset"
-    model.generate_and_save(prompt)

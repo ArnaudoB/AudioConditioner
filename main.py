@@ -1,5 +1,6 @@
+"""Text-to-audio generation CLI: generates background music from a scene description."""
+
 import torch
-import numpy as np
 from checkpoint_paths import SCENE_CHECKPOINT
 from models.AudioConditioner import AudioConditioner
 from models.BLIPModel import BLIPModel
@@ -7,7 +8,6 @@ from models.CLAPModel import CLAPModel
 from models.Descriptor import TwoDeepDescriptor
 from models.StableAudioModel import StableAudioModel
 import soundfile as sf
-import os
 
 def load_models():
     clap_model = CLAPModel()

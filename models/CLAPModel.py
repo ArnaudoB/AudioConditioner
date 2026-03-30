@@ -45,28 +45,3 @@ class CLAPModel(torch.nn.Module):
         else:
             audio_embeddings = None
         return text_embeddings, audio_embeddings
-    
-    
-
-if __name__ == "__main__":
-    import sys
-    import os
-    # Add parent directory to Python path to import utils
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
-    from utils import audio_utils
-    
-    conditioner = CLAPModel()
-    sample_texts = ["A calm and soothing piano melody", "An energetic rock guitar riff"]
-    embeddings = conditioner.get_text_embeddings(sample_texts)
-    print(embeddings.shape)
-
-    audio_waveforms = [audio_utils.audio_to_waveform("sounds/piano.mp3"), audio_utils.audio_to_waveform("sounds/energetic_guitar.mp3")]
-    audio_embeddings = conditioner.get_audio_embeddings(audio_waveforms)
-    print(audio_embeddings.shape)
-
-    for text_emb in embeddings:
-        for audio_emb in audio_embeddings:
-            similarity = torch.cosine_similarity(text_emb, audio_emb, dim=0)
-            print(f"Similarity: {similarity.item():.4f}")
-
